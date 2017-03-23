@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.utils import timezone
 
 
 class Info(models.Model):
@@ -11,7 +12,7 @@ class Info(models.Model):
     second_question = models.CharField('Zweite Frage', max_length=20, null=True, blank=True)
     second_text = models.CharField('Zweiter Text', max_length=600, null=True, blank=True)
     media = models.FileField('Medien-Anhang', null=True, blank=True)
-    pub_date = models.DateTimeField('Veröffentlicht am', default=datetime.datetime.now)
+    pub_date = models.DateTimeField('Veröffentlicht am', default=timezone.now)
 
     def __str__(self):
         return self.headline
