@@ -14,7 +14,7 @@ from django.core.handlers.wsgi import WSGIHandler
 
 
 class DjangoApplication(object):
-    HOST = "127.0.0.1"
+    HOST = "0.0.0.0"
     PORT = 8001
 
     def mount_static(self, url, root):
@@ -42,7 +42,7 @@ class DjangoApplication(object):
         self.mount_static(settings.STATIC_URL, settings.STATIC_ROOT)
 
         cherrypy.log("Loading and serving Django application")
-        cherrypy.tree.graft(WSGIHandler(), '/backend')
+        cherrypy.tree.graft(WSGIHandler(), settings.URL_PREFIX)
         cherrypy.engine.start()
         cherrypy.log("Your app is running at http://%s:%s" % (self.HOST, self.PORT))
 
