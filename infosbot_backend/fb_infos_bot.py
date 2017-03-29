@@ -26,11 +26,12 @@ SEARCH, SELECT = range(2)
 PAGE_TOKEN="EAAY1oJrTs2QBACGZAZCZCZC8KFW9ZBtNn4zEVpH7Cxf75g7xZAqPjoqoFpwnv3K87t8E3miHf4Fd1cHsUwue36Gh55ZAaXgafltAj2Y4LBpSNl7tV3ClbMJ7ScX3zJSSOmZCaljoAD0uDlNL1uLss2knLGK1KZC0FzWrPiZCnSlCa365pnfAxbJakh"
 items = None
 
-app = Flask(__name__, static_folder='.well-known')
+app = Flask(__name__)
+
 
 @app.route('/testbot', methods=["GET"])
 def confirm():
-    if request.args['hub.verify_token'] == "vcp3yqdkm7h1hz7hekot":
+    if request.args.get('hub.verify_token') == "vcp3yqdkm7h1hz7hekot":
         return request.args['hub.challenge']
     return 'Hello World!'
 
