@@ -12,9 +12,11 @@ django.setup()
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 
+import fb_infos_bot
+
 
 class DjangoApplication(object):
-    HOST = "0.0.0.0"
+    HOST = "127.0.0.1"
     PORT = 8001
 
     def mount_static(self, url, root):
@@ -43,6 +45,8 @@ class DjangoApplication(object):
 
         cherrypy.log("Loading and serving Django application")
         cherrypy.tree.graft(WSGIHandler(), settings.URL_PREFIX)
+        cherrypy.log("Loading and serving Flask-Ask application")
+        cherrypy.tree.graft(fb_infos_bot.app, '/fb')
         cherrypy.engine.start()
         cherrypy.log("Your app is running at http://%s:%s" % (self.HOST, self.PORT))
 
