@@ -1,5 +1,11 @@
-from flask import Flask, request
+import datetime
+import re
+import json
+import logging
+import os
 from os.path import basename, isfile, join
+
+from flask import Flask, request
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
@@ -7,11 +13,7 @@ from lxml import html
 from mutagen.id3 import ID3, TCON
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 import requests
-import datetime
-import re
 
-import json
-import logging
 
  #Enable logging
 logger = logging.getLogger(__name__)
@@ -23,7 +25,7 @@ logger.debug('fb Infos Bot Logging')
 
 SEARCH, SELECT = range(2)
 
-PAGE_TOKEN="EAAY1oJrTs2QBACGZAZCZCZC8KFW9ZBtNn4zEVpH7Cxf75g7xZAqPjoqoFpwnv3K87t8E3miHf4Fd1cHsUwue36Gh55ZAaXgafltAj2Y4LBpSNl7tV3ClbMJ7ScX3zJSSOmZCaljoAD0uDlNL1uLss2knLGK1KZC0FzWrPiZCnSlCa365pnfAxbJakh"
+PAGE_TOKEN = os.environ['INFOSBOT_PAGE_TOKEN']
 items = None
 
 app = Flask(__name__)
@@ -31,7 +33,7 @@ app = Flask(__name__)
 
 @app.route('/testbot', methods=["GET"])
 def confirm():
-    if request.args.get('hub.verify_token') == "vcp3yqdkm7h1hz7hekot":
+    if request.args.get('hub.verify_token') == os.environ['INFOSBOT_HUB_VERIFY_TOKEN']:
         return request.args['hub.challenge']
     return 'Hello World!'
 
