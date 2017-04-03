@@ -7,3 +7,4 @@ requests-toolbelt
 beautifulsoup4
 lxml
 mutagen
+paste
