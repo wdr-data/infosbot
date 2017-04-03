@@ -80,7 +80,7 @@ def get_data():
     day = now.day
     month = now.month
     year = now.year
-    return Info.objects.filter(pub_date__day=day, pub_date__month=month, pub_day__year=year)
+    return Info.objects.filter(pub_date__day=day, pub_date__month=month, pub_date__year=year)
 
 
 def send_text(recipient_id, text):
