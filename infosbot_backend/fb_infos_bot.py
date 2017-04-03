@@ -1,17 +1,12 @@
 import json
 import logging
-from os.path import basename, isfile, join
-from urllib.request import urlopen, Request
-from urllib.parse import urlencode
-import sqlite3 as lite
-import datetime
-import re
 import os
 
 from flask import Flask, request
-from bs4 import BeautifulSoup
-from lxml import html
 import requests
+from django.utils import timezone
+
+from backend.models import Info
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -20,11 +15,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger.info('FB Infos Bot Logging')
 
-SEARCH, SELECT = range(2)
-
 PAGE_TOKEN = os.environ['INFOSBOT_PAGE_TOKEN']
 HUB_VERIFY_TOKEN = os.environ['INFOSBOT_HUB_VERIFY_TOKEN']
-infos = list()
 
 app = Flask(__name__)
 
@@ -70,12 +62,12 @@ def handle_messages(data):
                     "Update zu bekommen."
             send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "info":
-            for info in infos:
-                #reply = event['postback'].get("payload","").split("#")[1]
-                #reply += info[0]
-                if event['postback'].get("payload", "").split("#")[1] == str(info[0]):
-                    reply = info[2]
-                    send_text(sender_id, reply)
+            #reply = event['postback'].get("payload","").split("#")[1]
+            #reply += info[0]
+            requested_info_id = event['postback'].get("payload", "").split("#")[1]
+            info = Info.objects.get(id=int(requested_info_id))
+            reply = info.intro_text
+            send_text(sender_id, reply)
         #     audio_url = event['postback'].get("payload","").split("#")[1]
         #     audio_file = get_audio(audio_url)
         #     send_audio(sender_id, audio_file)
@@ -84,25 +76,11 @@ def handle_messages(data):
 
 
 def get_data():
-    db_path = 'infosbot_backend/db.sqlite3'
-    database = lite.connect('db.sqlite3')
-
-    with database:
-
-        cur = database.cursor()
-        cur.execute("SELECT * FROM backend_info")
-
-        while True:
-            row = cur.fetchone()
-
-            if row is None:
-                break
-            # heute abfragen und in dict ablegen...
-            if row[7].split()[0] == '2017-04-03':
-                infos.append(row)
-
-        #logger.debug(info)
-    return infos
+    now = timezone.now()
+    day = now.day
+    month = now.month
+    year = now.year
+    return Info.objects.filter(pub_date__day=day, pub_date__month=month, pub_day__year=year)
 
 
 def send_text(recipient_id, text):
@@ -238,12 +216,12 @@ def send_list_template(infos, recipient_id):
     selection = []
 
     for info in infos:
-        title = info[1]
+        title = info.headline
         logger.debug(title)
         button = {
             'type': 'postback',
             'title': 'Mehr dazu',
-            'payload': 'info#' + str(info[0])
+            'payload': 'info#' + str(info.id)
         }
         buttons = []
         buttons.append(button)
