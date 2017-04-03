@@ -1,19 +1,16 @@
-import datetime
-import re
-import json
-import logging
-import os
-from os.path import basename, isfile, join
-
 from flask import Flask, request
+from os.path import basename, isfile, join
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 from lxml import html
-from mutagen.id3 import ID3, TCON
-from requests_toolbelt.multipart.encoder import MultipartEncoder
+import sqlite3 as lite
 import requests
+import datetime
+import re
 
+import json
+import logging
 
  #Enable logging
 logger = logging.getLogger(__name__)
@@ -25,15 +22,14 @@ logger.debug('fb Infos Bot Logging')
 
 SEARCH, SELECT = range(2)
 
-PAGE_TOKEN = os.environ['INFOSBOT_PAGE_TOKEN']
-items = None
+PAGE_TOKEN=""
+infos = list()
 
-app = Flask(__name__)
-
+app = Flask(__name__, static_folder='.well-known')
 
 @app.route('/testbot', methods=["GET"])
 def confirm():
-    if request.args.get('hub.verify_token') == os.environ['INFOSBOT_HUB_VERIFY_TOKEN']:
+    if request.args['hub.verify_token'] == "":
         return request.args['hub.challenge']
     return 'Hello World!'
 
@@ -55,17 +51,50 @@ def handle_messages(data):
         if "message" in event and event['message'].get("text","") != "":
             print('received message')
             text = event['message']['text']
-            reply = "echo: " +text
-            send_text(sender_id, reply)
+            if text == '/info':
+                reply = "Heute haben wir folgende Themen für dich:\n"
+                send_text(sender_id, reply)
+                data = get_data()
+                send_list_template(data, sender_id)
+            else:
+                reply = "echo: " +text
+                send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload","") == "start":
-            reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\nHier bekommst Du alle Infos geliefert, die Du wissen musst, um mitreden zu können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest :) \n\nWas Du dafür tun musst: Fast nichts."
+            reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\nHier bekommst Du alle Infos geliefert, die Du wissen musst, um mitreden zu können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest :) \n\nWas Du dafür tun musst: Fast nichts. Tippe \"/info\" um dein Update zu bekommen."
             send_text(sender_id, reply)
-        # elif "postback" in event and event['postback'].get("payload","").split("#")[0] == "listen_audio":
+        elif "postback" in event and event['postback'].get("payload","").split("#")[0] == "info":
+            for info in infos:
+                #reply = event['postback'].get("payload","").split("#")[1]
+                #reply += info[0]
+                if event['postback'].get("payload","").split("#")[1] == str(info[0]):
+                    reply = info[2]
+                    send_text(sender_id, reply)
         #     audio_url = event['postback'].get("payload","").split("#")[1]
         #     audio_file = get_audio(audio_url)
         #     send_audio(sender_id, audio_file)
             #reply = "Zukünftig wird dir hier ein Audio geschickt..."
             #send_text(sender_id, reply)
+
+def get_data():
+    db_path = 'infosbot_backend/db.sqlite3'
+    database = lite.connect('db.sqlite3')
+
+    with database:
+
+        cur = database.cursor()
+        cur.execute("SELECT * FROM backend_info")
+
+        while True:
+            row = cur.fetchone()
+
+            if row == None:
+                break
+        ### heute abfragen und in dict ablegen... ###
+            if row[7].split()[0] == '2017-04-03':
+                infos.append(row)
+
+        #logger.debug (info)
+    return infos
 
 def send_text(recipient_id, text):
     """send a text message to a recipient"""
@@ -121,8 +150,6 @@ def send_audio(recipient_id, audio_file):
         'message' : message,
         'filedata' : filedata
     }
-
-
     send(payload)
 
 def send_generic_template(recipient_id, gifts):
@@ -160,7 +187,6 @@ def send_generic_template(recipient_id, gifts):
         buttons = []
         buttons.append(listen_Button)
         buttons.append(download_Button)
-        #buttons.append(visit_Button)
         buttons.append(share_Button)
 
         elements = {
@@ -193,9 +219,52 @@ def send_generic_template(recipient_id, gifts):
     }
     send(payload)
 
+def send_list_template(infos, recipient_id):
+    """send a generic message with a list of choosable informations"""
+    selection = []
+
+    for info in infos:
+        title = info[1]
+        print (title)
+        button = {
+            'type' : 'postback',
+            'title' : 'Mehr dazu',
+            'payload' : 'info#' + str(info[0])
+        }
+        buttons = []
+        buttons.append(button)
+
+        elements = {
+            'title' : title,
+            'buttons' : buttons
+        }
+
+        selection.append(elements)
+
+    load = {
+            'template_type' : 'list',
+            'top_element_style': 'compact',
+            'elements' : selection
+        }
+
+    attachment = {
+        'type' : 'template',
+        'payload' : load
+    }
+
+    message = { 'attachment' : attachment }
+
+    recipient = { 'id' : recipient_id }
+
+    payload = {
+        'recipient' : recipient,
+        'message' : message
+    }
+    send(payload)
+
 def send(payload):
     """send a payload via the graph API"""
-    #print(json.dumps(payload))
+    print(json.dumps(payload))
     headers = {'Content-Type': 'application/json'}
     r = requests.post("https://graph.facebook.com/v2.6/me/messages?access_token="+PAGE_TOKEN,
         data = json.dumps(payload),
