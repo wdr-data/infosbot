@@ -271,6 +271,7 @@ def send_list_template(infos, recipient_id):
     for info in infos:
         title = info.headline
         logger.debug(title)
+
         button = {
             'type': 'postback',
             'title': 'Mehr dazu',
@@ -279,10 +280,19 @@ def send_list_template(infos, recipient_id):
         buttons = []
         buttons.append(button)
 
-        elements = {
-            'title': title,
-            'buttons': buttons
-        }
+        if info.media != "":
+            image = "https://infos.data.wdr.de/backend/static/media/" + str(info.media)
+            logger.debug(image)
+            elements = {
+                'title': title,
+                'image_url': image,
+                'buttons': buttons
+            }
+        else:
+            elements = {
+                'title': title,
+                'buttons': buttons
+            }
 
         selection.append(elements)
 
