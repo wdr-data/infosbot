@@ -67,6 +67,9 @@ def handle_messages(data):
             info = Info.objects.get(id=int(requested_info_id))
             status = "intro"
             send_text(sender_id, info.headline)
+            if info.media != "":
+                image = "https://infos.data.wdr.de/backend/static/media/" + str(info.media)
+                send_image(sender_id, image)
             send_text_with_button(sender_id, info, status)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "more":
             requested_info_id = event['postback'].get("payload", "").split("#")[2]
@@ -282,7 +285,6 @@ def send_list_template(infos, recipient_id):
 
         if info.media != "":
             image = "https://infos.data.wdr.de/backend/static/media/" + str(info.media)
-            logger.debug(image)
             elements = {
                 'title': title,
                 'image_url': image,
