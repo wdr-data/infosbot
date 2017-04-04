@@ -5,6 +5,11 @@ from django.utils import timezone
 
 
 class Info(models.Model):
+
+    class Meta:
+        verbose_name = 'Info'
+        verbose_name_plural = 'Infos'
+
     headline = models.CharField('Schlagzeile', max_length=200, null=False)
     intro_text = models.CharField('Intro-Text', max_length=200, null=False)
     first_question = models.CharField('Erste Frage', max_length=20, null=True, blank=True)
