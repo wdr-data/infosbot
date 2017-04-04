@@ -15,4 +15,4 @@ class Info(models.Model):
     pub_date = models.DateTimeField('Veröffentlicht am', default=timezone.now)
 
     def __str__(self):
-        return self.headline
+        return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)
