@@ -4,6 +4,7 @@ import os
 
 from flask import Flask, request
 import requests
+#from django.utils.timezone import localtime, now
 from django.utils import timezone
 
 from backend.models import Info
@@ -62,25 +63,28 @@ def handle_messages(data):
                     "Update zu bekommen."
             send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "info":
-            #reply = event['postback'].get("payload","").split("#")[1]
-            #reply += info[0]
             requested_info_id = event['postback'].get("payload", "").split("#")[1]
             info = Info.objects.get(id=int(requested_info_id))
-            reply = info.intro_text
-            send_text(sender_id, reply)
-        #     audio_url = event['postback'].get("payload","").split("#")[1]
-        #     audio_file = get_audio(audio_url)
-        #     send_audio(sender_id, audio_file)
-            #reply = "Zukünftig wird dir hier ein Audio geschickt..."
-            #send_text(sender_id, reply)
-
+            status = "intro"
+            send_text(sender_id, info.headline)
+            send_text_with_button(sender_id, info, status)
+        elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "more":
+            requested_info_id = event['postback'].get("payload", "").split("#")[2]
+            info = Info.objects.get(id=int(requested_info_id))
+            if event['postback'].get("payload", "").split("#")[1] == "1":
+                status = "one"
+            else:
+                status = "two"
+            send_text_with_button(sender_id, info, status)
+            # reply = "Hier folgen weitere Infos zum Thema."
+            # send_text(sender_id, reply)
+        elif "postback" in event and event['postback'].get("payload", "") == "back":
+            data = get_data()
+            send_list_template(data, sender_id)
 
 def get_data():
-    now = timezone.now()
-    day = now.day
-    month = now.month
-    year = now.year
-    return Info.objects.filter(pub_date__day=day, pub_date__month=month, pub_date__year=year)
+    today = timezone.localtime(timezone.now()).date()
+    return Info.objects.filter(pub_date__date=today)
 
 
 def send_text(recipient_id, text):
@@ -92,7 +96,6 @@ def send_text(recipient_id, text):
         'message': message
     }
     send(payload)
-
 
 def send_image(recipient_id, image_url):
     """send an image to a recipient"""
@@ -118,7 +121,6 @@ def send_image(recipient_id, image_url):
     }
     send(payload)
 
-
 def send_audio(recipient_id, audio_file):
     """send an audio to a recipient"""
     audio_file = "https://mediandr-a.akamaihd.net/progressive/2017/0302/AU-20170302-0656-0300.mp3"
@@ -140,7 +142,6 @@ def send_audio(recipient_id, audio_file):
         'filedata': filedata
     }
     send(payload)
-
 
 def send_generic_template(recipient_id, gifts):
     """send a generic message with title, text, image and buttons"""
@@ -210,6 +211,58 @@ def send_generic_template(recipient_id, gifts):
     }
     send(payload)
 
+def send_text_with_button(recipient_id, info, status):
+    """send a message with a button (1-3 buttons possible)"""
+    if status == "intro":
+        status_id = 1
+        text = info.intro_text
+        button_title = info.first_question
+    elif status == "one":
+        status_id = 2
+        text = info.first_text
+        button_title = info.second_question
+    elif status == "two":
+        status_id = 0
+        text = info.second_text
+        button_title = "None"
+
+    more_button = {
+        'type': 'postback',
+        'title': button_title,
+        'payload': 'more#' + str(status_id) + '#' + str(info.id)
+    }
+    back_button = {
+        'type': 'postback',
+        'title': 'Zurück',
+        'payload': 'back'
+    }
+    buttons = []
+    if status_id > 0:
+        buttons.append(more_button)
+        buttons.append(back_button)
+    else:
+        buttons.append(back_button)
+
+    load = {
+            'template_type': 'button',
+            'text': text,
+            'buttons': buttons
+        }
+
+    attachment = {
+        'type': 'template',
+        'payload': load
+    }
+
+    message = {'attachment': attachment}
+
+    recipient = {'id': recipient_id}
+
+    payload = {
+        'recipient': recipient,
+        'message': message
+    }
+    send(payload)
 
 def send_list_template(infos, recipient_id):
     """send a generic message with a list of choosable informations"""
@@ -257,7 +310,7 @@ def send_list_template(infos, recipient_id):
 
 def send(payload):
     """send a payload via the graph API"""
-    logger.debug(json.dumps(payload))
+    #logger.debug(json.dumps(payload))
     headers = {'Content-Type': 'application/json'}
     requests.post("https://graph.facebook.com/v2.6/me/messages?access_token=" + PAGE_TOKEN,
                   data=json.dumps(payload),
@@ -265,8 +318,5 @@ def send(payload):
 
 
 if __name__ == '__main__':
-    #update_data()
-    #data = parse()
-    #logger.debug('Content of Page written into: ' + str(data))
     app.debug = False
     app.run(port=4444)
