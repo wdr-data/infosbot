@@ -9,6 +9,10 @@ from django.utils import timezone
 
 from backend.models import Info
 
+# TODO: Django ORM Limit für die Anzahl der Listen-Elemente: https://docs.djangoproject.com/en/1.10/topics/db/queries/#limiting-querysets
+# TODO: The idea is simple. When you send "subscribe" to the bot, the bot server would add a record according to the sender_id to their
+# database or memory , then the bot server could set a timer to distribute the news messages to those sender_id who have subscribed for the news.
+
 # Enable logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,7 +43,7 @@ def receive_message():
 def handle_messages(data):
     """handle all incoming messages"""
     messaging_events = data['entry'][0]['messaging']
-    logger.debug(messaging_events)
+    #logger.debug(messaging_events)
     for event in messaging_events:
         sender_id = event['sender']['id']
 
@@ -87,7 +91,7 @@ def handle_messages(data):
 
 def get_data():
     today = timezone.localtime(timezone.now()).date()
-    return Info.objects.filter(pub_date__date=today)
+    return Info.objects.filter(pub_date__date=today)[:4]
 
 
 def send_text(recipient_id, text):
