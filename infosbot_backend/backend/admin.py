@@ -4,9 +4,12 @@ from .models import Info
 
 
 class InfoModelForm(forms.ModelForm):
-    intro_text = forms.CharField(widget=forms.Textarea)
-    first_text = forms.CharField(widget=forms.Textarea)
-    second_text = forms.CharField(widget=forms.Textarea)
+    intro_text = forms.CharField(
+        required=True, label="Intro-Text", widget=forms.Textarea, max_length=200)
+    first_text = forms.CharField(
+        required=False, label="Erster Text", widget=forms.Textarea, max_length=600)
+    second_text = forms.CharField(
+        required=False, label="Zweiter Text", widget=forms.Textarea, max_length=600)
 
     class Meta:
         model = Info
