@@ -43,7 +43,7 @@ def receive_message():
 def handle_messages(data):
     """handle all incoming messages"""
     messaging_events = data['entry'][0]['messaging']
-    #logger.debug(messaging_events)
+    logger.debug(messaging_events)
     for event in messaging_events:
         sender_id = event['sender']['id']
 
@@ -89,8 +89,8 @@ def handle_messages(data):
             send_text_with_button(sender_id, info, status)
             # reply = "Hier folgen weitere Infos zum Thema."
             # send_text(sender_id, reply)
-        elif "postback" in event and event['postback'].get("payload", "") == "subscribe":
-            logger.info('User with ID ' + sender_id + ' subscribed.')
+        elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "subscribe":
+            logger.debug('User with ID ' + sender_id + ' subscribed.')
             subscribe_user(sender_id)
             reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update jeweils um 8:00 Uhr wochentags."
             send_text(sender_id, reply)
@@ -103,10 +103,11 @@ def get_data():
     return Info.objects.filter(pub_date__date=today)[:4]
 
 def subscribe_user(user_id):
+    logger.debug('subscribe_user')
     with open('userlist.csv', 'w', newline='') as user_list:
         writer = csv.writer(user_list, delimiter=' ', quotechar='"', quoting=csv.QUOTE_ALL)
         time = timezone.now
-        writer.writerow(user_id + time)
+        writer.writerow(user_id + str(time))
 
     user_list.close()
 
