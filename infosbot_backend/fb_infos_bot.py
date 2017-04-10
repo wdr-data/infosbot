@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import csv
 
 from flask import Flask, request
 import requests
@@ -9,7 +10,6 @@ from django.utils import timezone
 
 from backend.models import Info
 
-# TODO: Django ORM Limit für die Anzahl der Listen-Elemente: https://docs.djangoproject.com/en/1.10/topics/db/queries/#limiting-querysets
 # TODO: The idea is simple. When you send "subscribe" to the bot, the bot server would add a record according to the sender_id to their
 # database or memory , then the bot server could set a timer to distribute the news messages to those sender_id who have subscribed for the news.
 
@@ -52,10 +52,14 @@ def handle_messages(data):
             logger.debug('received message')
             text = event['message']['text']
             if text == '/info':
-                reply = "Heute haben wir folgende Themen für dich:\n"
+                reply = "Heute haben wir folgende Themen für dich:"
                 send_text(sender_id, reply)
                 data = get_data()
                 send_list_template(data, sender_id)
+            elif text == '/config':
+                reply = "Hier kannst du deine facebook Messenger-ID hinterlegen um automatisch ein tägliches Update von uns zu erhalten.\n" \
+                        "Wenn du dich registiren möchtest klicke \"OK\". Du kannst deine Entscheidung jederzet wieder ändern."
+                send_text_with_button(sender_id, reply)
             else:
                 reply = "echo: " + text
                 send_text(sender_id, reply)
@@ -85,6 +89,11 @@ def handle_messages(data):
             send_text_with_button(sender_id, info, status)
             # reply = "Hier folgen weitere Infos zum Thema."
             # send_text(sender_id, reply)
+        elif "postback" in event and event['postback'].get("payload", "") == "subscribe":
+            logger.info('User with ID ' + sender_id + ' subscribed.')
+            subscribe_user(sender_id)
+            reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update jeweils um 8:00 Uhr wochentags."
+            send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "back":
             data = get_data()
             send_list_template(data, sender_id)
@@ -93,6 +102,13 @@ def get_data():
     today = timezone.localtime(timezone.now()).date()
     return Info.objects.filter(pub_date__date=today)[:4]
 
+def subscribe_user(user_id):
+    with open('userlist.csv', 'w', newline='') as user_list:
+        writer = csv.writer(user_list, delimiter=' ', quotechar='"', quoting=csv.QUOTE_ALL)
+        time = timezone.now
+        writer.writerow(user_id + time)
+
+    user_list.close()
 
 def send_text(recipient_id, text):
     """send a text message to a recipient"""
@@ -218,7 +234,7 @@ def send_generic_template(recipient_id, gifts):
     }
     send(payload)
 
-def send_text_with_button(recipient_id, info, status):
+def send_text_with_button(recipient_id, info, *status):
     """send a message with a button (1-3 buttons possible)"""
     if status == "intro":
         status_id = 1
@@ -232,12 +248,22 @@ def send_text_with_button(recipient_id, info, status):
         status_id = 0
         text = info.second_text
         button_title = "None"
+    else:
+        status_id = 3
+        text = info
+        button_title = "OK"
+
+    if status_id == 3:
+        task = 'subscribe#' + recipient_id
+    else:
+        'more#' + str(status_id) + '#' + str(info.id)
 
     more_button = {
         'type': 'postback',
         'title': button_title,
-        'payload': 'more#' + str(status_id) + '#' + str(info.id)
+        'payload': task
     }
+
     back_button = {
         'type': 'postback',
         'title': 'Zurück',
