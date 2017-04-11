@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Info
+from .models import Info, FacebookUser
 
 
 class InfoModelForm(forms.ModelForm):
@@ -21,3 +21,4 @@ class InfoAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Info, InfoAdmin)
+admin.site.register(FacebookUser)
