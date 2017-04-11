@@ -21,3 +21,17 @@ class Info(models.Model):
 
     def __str__(self):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)
+
+
+class FacebookUser(models.Model):
+
+    class Meta:
+        verbose_name = 'Facebook User'
+        verbose_name_plural = 'Facebook User'
+
+    uid = models.CharField('User ID', max_length=64, null=False)
+    name = models.CharField('Name', max_length=64, null=True, blank=True)
+    add_date = models.DateTimeField('Hinzugefügt am', default=timezone.now)
+
+    def __str__(self):
+        return '%s (%s)' % (self.name or 'Kein Name', self.uid)
