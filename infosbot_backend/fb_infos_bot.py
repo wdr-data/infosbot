@@ -72,10 +72,10 @@ def handle_messages(data):
         elif "postback" in event and event['postback'].get("payload", "") == "start":
             reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\n" \
                     "Hier bekommst Du alle Infos geliefert, die Du wissen musst, um mitreden zu " \
-                    "können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest" \
-                    " :) \n\nWas Du dafür tun musst: Fast nichts. Tippe \"/info\" um dein " \
-                    "Update zu bekommen."
-            send_text(sender_id, reply)
+                    "können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest :)" \
+                    "\nWas Du dafür tun musst: Fast nichts." \
+                    "\n\nUm dich für dein automatisches Update zu registrieren klicke auf \"OK\"."
+            send_text_with_button(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "info":
             requested_info_id = event['postback'].get("payload", "").split("#")[1]
             info = Info.objects.get(id=int(requested_info_id))
@@ -132,6 +132,8 @@ def push_notification():
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
         logger.debug("Send Push to: " + user)
+        reply = "Heute haben wir folgende Themen für dich:"
+        send_text(sender_id, reply)
         send_list_template(data, user)
 
 def send_text(recipient_id, text):
