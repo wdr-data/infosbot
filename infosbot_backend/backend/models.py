@@ -29,7 +29,7 @@ class FacebookUser(models.Model):
         verbose_name = 'Facebook User'
         verbose_name_plural = 'Facebook User'
 
-    uid = models.CharField('User ID', max_length=64, null=False)
+    uid = models.CharField('User ID', max_length=64, null=False, unique=True)
     name = models.CharField('Name', max_length=64, null=True, blank=True)
     add_date = models.DateTimeField('Hinzugefügt am', default=timezone.now)
 
