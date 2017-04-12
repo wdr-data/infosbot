@@ -8,7 +8,7 @@ import requests
 #from django.utils.timezone import localtime, now
 from django.utils import timezone
 
-from backend.models import Info
+from backend.models import Info, FacebookUser
 
 # TODO: The idea is simple. When you send "subscribe" to the bot, the bot server would add a record according to the sender_id to their
 # database or memory , then the bot server could set a timer to distribute the news messages to those sender_id who have subscribed for the news.
@@ -103,13 +103,7 @@ def get_data():
     return Info.objects.filter(pub_date__date=today)[:4]
 
 def subscribe_user(user_id):
-    logger.debug('subscribe_user')
-    with open('userlist.csv', 'w', newline='') as user_list:
-        writer = csv.writer(user_list, delimiter=' ', quotechar='"', quoting=csv.QUOTE_ALL)
-        time = timezone.now
-        writer.writerow(user_id + str(time))
-
-    user_list.close()
+    FacebookUser.objects.create(uid = user_id)
 
 def send_text(recipient_id, text):
     """send a text message to a recipient"""
