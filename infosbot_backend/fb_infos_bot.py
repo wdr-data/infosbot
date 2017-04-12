@@ -78,13 +78,15 @@ def handle_messages(data):
             if info.media != "":
                 image = "https://infos.data.wdr.de/backend/static/media/" + str(info.media)
                 send_image(sender_id, image)
+            logger.debug("status in postback: " + status)
             send_text_with_button(sender_id, info, status)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "more":
             requested_info_id = event['postback'].get("payload", "").split("#")[2]
             info = Info.objects.get(id=int(requested_info_id))
-            if event['postback'].get("payload", "").split("#")[1] == "1":
+            logger.debug(event['postback'].get("payload", "").split("#")[1])
+            if event['postback'].get("payload", "").split("#")[1] == "0":
                 status = "one"
-            else:
+            elif event['postback'].get("payload", "").split("#")[1] == "1":
                 status = "two"
             send_text_with_button(sender_id, info, status)
             # reply = "Hier folgen weitere Infos zum Thema."
@@ -229,29 +231,32 @@ def send_generic_template(recipient_id, gifts):
     }
     send(payload)
 
-def send_text_with_button(recipient_id, info, *status):
+def send_text_with_button(recipient_id, info, status="other"):
     """send a message with a button (1-3 buttons possible)"""
     if status == "intro":
-        status_id = 1
+        status_id = 0
         text = info.intro_text
         button_title = info.first_question
     elif status == "one":
-        status_id = 2
+        status_id = 1
         text = info.first_text
         button_title = info.second_question
     elif status == "two":
-        status_id = 0
+        status_id = 2
         text = info.second_text
         button_title = "None"
-    else:
+    elif status == "other":
         status_id = 3
         text = info
         button_title = "OK"
 
+    logger.debug("Text: " + str(text) + ", info.introtext: " + str(info.intro_text))
+    logger.debug("Status at send_text_with_button: " + str(status) + " " + str(status_id))
+
     if status_id == 3:
         task = 'subscribe#' + recipient_id
     else:
-        'more#' + str(status_id) + '#' + str(info.id)
+        task = 'more#' + str(status_id) + '#' + str(info.id)
 
     more_button = {
         'type': 'postback',
@@ -265,10 +270,10 @@ def send_text_with_button(recipient_id, info, *status):
         'payload': 'back'
     }
     buttons = []
-    if status_id > 0:
-        buttons.append(more_button)
+    if status_id == 2:
         buttons.append(back_button)
     else:
+        buttons.append(more_button)
         buttons.append(back_button)
 
     load = {
@@ -290,20 +295,23 @@ def send_text_with_button(recipient_id, info, *status):
         'recipient': recipient,
         'message': message
     }
+    logger.debug("Payload from send_text_with_button: " + str(payload))
     send(payload)
 
 def send_list_template(infos, recipient_id):
     """send a generic message with a list of choosable informations"""
     selection = []
+    count = 0
 
     for info in infos:
+        count += 1
         title = info.headline
         logger.debug(title)
 
         button = {
             'type': 'postback',
             'title': 'Mehr dazu',
-            'payload': 'info#' + str(info.id)
+            'payload': 'info#' + str(info.id) + '#' + str(count)
         }
         buttons = []
         buttons.append(button)
@@ -347,7 +355,7 @@ def send_list_template(infos, recipient_id):
 
 def send(payload):
     """send a payload via the graph API"""
-    #logger.debug(json.dumps(payload))
+    logger.debug("JSON Payload: " + json.dumps(payload))
     headers = {'Content-Type': 'application/json'}
     requests.post("https://graph.facebook.com/v2.6/me/messages?access_token=" + PAGE_TOKEN,
                   data=json.dumps(payload),
