@@ -90,7 +90,6 @@ def handle_messages(data):
             # reply = "Hier folgen weitere Infos zum Thema."
             # send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "subscribe":
-            logger.debug('User with ID ' + sender_id + ' subscribed.')
             subscribe_user(sender_id)
             reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update jeweils um 8:00 Uhr wochentags."
             send_text(sender_id, reply)
@@ -104,6 +103,7 @@ def get_data():
 
 def subscribe_user(user_id):
     FacebookUser.objects.create(uid = user_id)
+    logger.debug('User with ID ' + FacebookUser.objects.latest('add_date') + ' subscribed.')
 
 def send_text(recipient_id, text):
     """send a text message to a recipient"""
