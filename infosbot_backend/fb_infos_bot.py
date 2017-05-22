@@ -56,9 +56,15 @@ def handle_messages(data):
                 send_text(sender_id, reply)
                 data = get_data()
                 send_list_template(data, sender_id)
+            elif text == '/testpush':
+                reply = "Push Notification Test..."
+                send_text(sender_id, reply)
+                push_notification()
+                # data = get_data()
+                # send_list_template(data, sender_id)
             elif text == '/config':
                 reply = "Hier kannst du deine facebook Messenger-ID hinterlegen um automatisch ein tägliches Update von uns zu erhalten.\n" \
-                        "Wenn du dich registiren möchtest klicke \"OK\". Du kannst deine Entscheidung jederzet wieder ändern."
+                        "Wenn du dich registieren möchtest klicke \"OK\". Du kannst deine Entscheidung jederzet wieder ändern."
                 send_text_with_button(sender_id, reply)
             else:
                 reply = "echo: " + text
@@ -66,10 +72,10 @@ def handle_messages(data):
         elif "postback" in event and event['postback'].get("payload", "") == "start":
             reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\n" \
                     "Hier bekommst Du alle Infos geliefert, die Du wissen musst, um mitreden zu " \
-                    "können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest" \
-                    " :) \n\nWas Du dafür tun musst: Fast nichts. Tippe \"/info\" um dein " \
-                    "Update zu bekommen."
-            send_text(sender_id, reply)
+                    "können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest :)" \
+                    "\nWas Du dafür tun musst: Fast nichts." \
+                    "\n\nUm dich für dein automatisches Update zu registrieren klicke auf \"OK\"."
+            send_text_with_button(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "info":
             requested_info_id = event['postback'].get("payload", "").split("#")[1]
             info = Info.objects.get(id=int(requested_info_id))
@@ -93,8 +99,6 @@ def handle_messages(data):
             # send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "subscribe":
             subscribe_user(sender_id)
-            reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update jeweils um 8:00 Uhr wochentags."
-            send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "back":
             data = get_data()
             send_list_template(data, sender_id)
@@ -104,8 +108,33 @@ def get_data():
     return Info.objects.filter(pub_date__date=today)[:4]
 
 def subscribe_user(user_id):
-    FacebookUser.objects.create(uid = user_id)
-    logger.debug('User with ID ' + FacebookUser.objects.latest('add_date') + ' subscribed.')
+    if FacebookUser.objects.filter(uid = user_id).exists():
+        reply = "Du bist bereits für Push Nachrichten angemeldet."
+        send_text(user_id, reply)
+    else:
+        FacebookUser.objects.create(uid = user_id)
+        logger.debug('User with ID ' + str(FacebookUser.objects.latest('add_date')) + ' subscribed.')
+        reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update jeweils um 8:00 Uhr wochentags."
+        send_text(user_id, reply)
+
+def unsubscribe_user(user_id):
+    if FacebookUser.objects.filter(uid = user_id).exists():
+        logger.debug('User with ID ' + str(FacebookUser.objects.get(uid = user_id)) + ' unsubscribed.')
+        FacebookUser.objects.get(uid = user_id).delete()
+        reply = "Du wurdest aus der Empfängerliste für Push Benachrichtigungen gestrichen. Danke!"
+        send_text(user_id, reply)
+    else:
+        reply = "Du bist noch kein Nutzer der Push Nachrichten. Wenn du dich anmelden möchtest wähle \'Anmelden\' im Menü."
+        send_text(user_id, reply)
+
+def push_notification():
+    data = get_data()
+    user_list = FacebookUser.objects.values_list('uid', flat=True)
+    for user in user_list:
+        logger.debug("Send Push to: " + user)
+        reply = "Heute haben wir folgende Themen für dich:"
+        send_text(sender_id, reply)
+        send_list_template(data, user)
 
 def send_text(recipient_id, text):
     """send a text message to a recipient"""
@@ -250,9 +279,6 @@ def send_text_with_button(recipient_id, info, status="other"):
         text = info
         button_title = "OK"
 
-    logger.debug("Text: " + str(text) + ", info.introtext: " + str(info.intro_text))
-    logger.debug("Status at send_text_with_button: " + str(status) + " " + str(status_id))
-
     if status_id == 3:
         task = 'subscribe#' + recipient_id
     else:
@@ -295,7 +321,7 @@ def send_text_with_button(recipient_id, info, status="other"):
         'recipient': recipient,
         'message': message
     }
-    logger.debug("Payload from send_text_with_button: " + str(payload))
+
     send(payload)
 
 def send_list_template(infos, recipient_id):
