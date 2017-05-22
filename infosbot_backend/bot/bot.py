@@ -162,7 +162,8 @@ def send_info(user_id, data, status):
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif next_id == None:
-        send_text(user_id, reply)
+        quickreplies.append(more_button)
+        send_text_and_quickreplies(reply, quickreplies, user_id)
 
 
 def subscribe_user(user_id):
