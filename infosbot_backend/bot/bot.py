@@ -125,14 +125,15 @@ def schema(data, user_id):
     send_text_and_quickreplies(reply, quickreplies, user_id)
 
 def send_info(user_id, data, status):
-    next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
     if status == "intro":
         status_id = 'one'
         reply = data.intro_text
+        next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
         button_title = data.first_question
     elif status == "one":
         status_id = 'two'
         reply = data.first_text
+        next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
         button_title = data.second_question
     elif status == "two":
         status_id = 'next'
@@ -152,7 +153,7 @@ def send_info(user_id, data, status):
     }
 
     if status_id == 'next':
-        quickreplies.append(next_button)
+        send_text(user_id, reply)
     else:
         quickreplies.append(more_button)
         quickreplies.append(next_button)
