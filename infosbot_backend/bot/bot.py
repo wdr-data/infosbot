@@ -125,7 +125,7 @@ def schema(data, user_id):
     send_text_and_quickreplies(reply, quickreplies, user_id)
 
 def send_info(user_id, data, status):
-    next_id = Info.objects.filter(id__gt = data.id)[:1]
+    next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
     if status == "intro":
         status_id = 'one'
         reply = data.intro_text
