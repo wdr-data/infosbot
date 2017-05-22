@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -8,6 +9,7 @@ from django.http import HttpResponse
 from . import bot
 
 HUB_VERIFY_TOKEN = os.environ.get('INFOSBOT_HUB_VERIFY_TOKEN', 'na')
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -20,7 +22,10 @@ def webhook(request):
 
     elif request.method == 'POST':
         data = json.loads(request.body.decode())
-        bot.handle_messages(data)
+        try:
+            bot.handle_messages(data)
+        except:
+            logger.exception("Error handling messages")
         return HttpResponse("ok", content_type="text/plain")
 
 
