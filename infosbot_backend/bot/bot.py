@@ -8,7 +8,7 @@ import requests
 #from django.utils.timezone import localtime, now
 from django.utils import timezone
 
-from ..backend.models import Info, FacebookUser
+from backend.models import Info, FacebookUser
 from .fb import (send, send_text, send_text_with_button, send_image, send_audio,
                  send_generic_template, send_list_template)
 

@@ -19,7 +19,7 @@ from django.conf.urls import url
 
 from . import views
 
-PAGE_TOKEN = os.environ['INFOSBOT_PAGE_TOKEN']
+PAGE_TOKEN = os.environ.get('INFOSBOT_PAGE_TOKEN', 'na')
 
 urlpatterns = [
     url(r'^%s/$' % PAGE_TOKEN, views.webhook, name='webhook'),

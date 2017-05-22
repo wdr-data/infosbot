@@ -4,7 +4,7 @@ import logging
 
 import requests
 
-PAGE_TOKEN = os.environ['INFOSBOT_PAGE_TOKEN']
+PAGE_TOKEN = os.environ.get('INFOSBOT_PAGE_TOKEN', 'na')
 logger = logging.getLogger(__name__)
 
 

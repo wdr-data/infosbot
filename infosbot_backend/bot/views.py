@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 from . import bot
 
-HUB_VERIFY_TOKEN = os.environ['INFOSBOT_HUB_VERIFY_TOKEN']
+HUB_VERIFY_TOKEN = os.environ.get('INFOSBOT_HUB_VERIFY_TOKEN', 'na')
 
 
 def webhook(request):
