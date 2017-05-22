@@ -128,15 +128,15 @@ def send_info(user_id, data, status):
     next_id = Info.objects.filter(id__gt = data.id)[:1]
     if status == "intro":
         status_id = 'one'
-        text = data.intro_text
+        reply = data.intro_text
         button_title = data.first_question
     elif status == "one":
         status_id = 'two'
-        text = data.first_text
+        reply = data.first_text
         button_title = data.second_question
     elif status == "two":
         status_id = 'next'
-        text = data.second_text
+        reply = data.second_text
         button_title = "None"
 
     quickreplies = []
