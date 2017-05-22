@@ -2,6 +2,7 @@ import os
 import json
 
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 from . import bot
@@ -9,6 +10,7 @@ from . import bot
 HUB_VERIFY_TOKEN = os.environ.get('INFOSBOT_HUB_VERIFY_TOKEN', 'na')
 
 
+@csrf_exempt
 def webhook(request):
     if request.method == 'GET':
         if request.GET.get('hub.verify_token') == HUB_VERIFY_TOKEN:
