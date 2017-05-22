@@ -62,12 +62,11 @@ def handle_messages(data):
                 best_match = process.extractOne(
                     text,
                     dialogues,
-                    processor=lambda d: d.input,
                     scorer=fuzz.token_set_ratio,
                     score_cutoff=50)
 
                 if best_match:
-                    reply = best_match.output
+                    reply = best_match[0].output
                 else:
                     reply = "Tut mir Leid, darauf habe ich keine Antwort."
 
