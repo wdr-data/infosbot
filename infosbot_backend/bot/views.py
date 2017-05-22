@@ -19,7 +19,7 @@ def webhook(request):
             return HttpResponse('Hello World!', content_type="text/plain")
 
     elif request.method == 'POST':
-        data = json.load(request.body.decode())
+        data = json.loads(request.body.decode())
         bot.handle_messages(data)
         return HttpResponse("ok", content_type="text/plain")
 
