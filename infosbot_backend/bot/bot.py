@@ -140,25 +140,25 @@ def send_info(user_id, data, status):
         reply = data.second_text
         button_title = "None"
 
-    quickreplies = []
-    more_button = {
-        'content_type' : 'text',
-        'title' : button_title,
-        'payload' : 'info#' + str(data.id) + '#' + str(status_id)
-    }
-    next_button = {
-        'content_type': 'text',
-        'title': 'Nächste Info',
-        'payload': 'info#' + str(next_id) + '#intro'
-    }
-
     if status_id == 'next':
         send_text(user_id, reply)
     else:
+        quickreplies = []
+        more_button = {
+            'content_type' : 'text',
+            'title' : button_title,
+            'payload' : 'info#' + str(data.id) + '#' + str(status_id)
+        }
+        next_button = {
+            'content_type': 'text',
+            'title': 'Nächste Info',
+            'payload': 'info#' + str(next_id) + '#intro'
+        }
+
         quickreplies.append(more_button)
         quickreplies.append(next_button)
 
-    send_text_and_quickreplies(reply, quickreplies, user_id)
+        send_text_and_quickreplies(reply, quickreplies, user_id)
 
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
