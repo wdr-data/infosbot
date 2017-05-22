@@ -18,7 +18,6 @@ def send_text(recipient_id, text):
     }
     send(payload)
 
-
 def send_image(recipient_id, image_url):
     """send an image to a recipient"""
 
@@ -43,7 +42,6 @@ def send_image(recipient_id, image_url):
     }
     send(payload)
 
-
 def send_audio(recipient_id, audio_file):
     """send an audio to a recipient"""
     audio_file = "https://mediandr-a.akamaihd.net/progressive/2017/0302/AU-20170302-0656-0300.mp3"
@@ -65,7 +63,6 @@ def send_audio(recipient_id, audio_file):
         'filedata': filedata
     }
     send(payload)
-
 
 def send_generic_template(recipient_id, gifts):
     """send a generic message with title, text, image and buttons"""
@@ -135,7 +132,6 @@ def send_generic_template(recipient_id, gifts):
     }
     send(payload)
 
-
 def send_text_with_button(recipient_id, info, status="other"):
     """send a message with a button (1-3 buttons possible)"""
     if status == "intro":
@@ -154,9 +150,6 @@ def send_text_with_button(recipient_id, info, status="other"):
         status_id = 3
         text = info
         button_title = "OK"
-
-    logger.debug("Text: " + str(text) + ", info.introtext: " + str(info.intro_text))
-    logger.debug("Status at send_text_with_button: " + str(status) + " " + str(status_id))
 
     if status_id == 3:
         task = 'subscribe#' + recipient_id
@@ -200,9 +193,8 @@ def send_text_with_button(recipient_id, info, status="other"):
         'recipient': recipient,
         'message': message
     }
-    logger.debug("Payload from send_text_with_button: " + str(payload))
-    send(payload)
 
+    send(payload)
 
 def send_list_template(infos, recipient_id):
     """send a generic message with a list of choosable informations"""
