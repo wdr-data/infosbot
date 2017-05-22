@@ -42,27 +42,27 @@ def send_image(recipient_id, image_url):
     }
     send(payload)
 
-# def send_audio(recipient_id, audio_file):
-#     """send an audio to a recipient"""
-#     audio_file = "https://mediandr-a.akamaihd.net/progressive/2017/0302/AU-20170302-0656-0300.mp3"
-#
-#     recipient = {"id": recipient_id}
-#     audio = {'url': audio_file}
-#     filedata = '@' + audio_file + ';type=audio/mp3'
-#
-#     attachment = {
-#         'type': 'audio',
-#         'payload': audio
-#     }
-#
-#     message = {'attachment': attachment}
-#
-#     payload = {
-#         'recipient': recipient,
-#         'message': message,
-#         'filedata': filedata
-#     }
-#     send(payload)
+def send_audio(recipient_id, audio_file):
+    """send an audio to a recipient"""
+    audio_file = "https://mediandr-a.akamaihd.net/progressive/2017/0302/AU-20170302-0656-0300.mp3"
+
+    recipient = {"id": recipient_id}
+    audio = {'url': audio_file}
+    filedata = '@' + audio_file + ';type=audio/mp3'
+
+    attachment = {
+        'type': 'audio',
+        'payload': audio
+    }
+
+    message = {'attachment': attachment}
+
+    payload = {
+        'recipient': recipient,
+        'message': message,
+        'filedata': filedata
+    }
+    send(payload)
 
 def send_generic_template(recipient_id, gifts):
     """send a generic message with title, text, image and buttons"""
