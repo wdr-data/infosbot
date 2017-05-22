@@ -11,7 +11,7 @@ from fuzzywuzzy import fuzz, process
 
 from backend.models import Info, FacebookUser, Dialogue
 from .fb import (send, send_text, send_text_with_button, send_image, send_audio,
-                 send_generic_template, send_list_template)
+                 send_generic_template, send_list_template, send_text_and_quickreplies)
 
 # TODO: The idea is simple. When you send "subscribe" to the bot, the bot server would add a record according to the sender_id to their
 # database or memory , then the bot server could set a timer to distribute the news messages to those sender_id who have subscribed for the news.
@@ -30,14 +30,18 @@ def handle_messages(data):
         sender_id = event['sender']['id']
 
         # check if we actually have some input
-        if "message" in event and event['message'].get("text", "") != "":
+        if "message" in event and event['message'].get("quick_reply", "") != "":
+            quick_reply = event['message']['quick_reply']['payload']
+            if quick_reply == 'los_gehts':
+                reply = 'Es geht los'
+                send_text(sender_id, reply)
+        elif "message" in event and event['message'].get("text", "") != "" and event['message'].get('quick_reply') == None:
             logger.debug('received message')
             text = event['message']['text']
             if text == '/info':
-                reply = "Heute haben wir folgende Themen für dich:"
-                send_text(sender_id, reply)
                 data = get_data()
-                send_list_template(data, sender_id)
+                schema(data, sender_id)
+                #send_list_template(data, sender_id)
             elif text == '/testpush':
                 reply = "Push Notification Test..."
                 send_text(sender_id, reply)
@@ -95,11 +99,26 @@ def handle_messages(data):
             subscribe_user(sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "back":
             data = get_data()
-            send_list_template(data, sender_id)
+            #send_list_template(data, sender_id)
 
 def get_data():
     today = timezone.localtime(timezone.now()).date()
-    return Info.objects.filter(pub_date__date=today)[:4]
+    return Info.objects.filter(pub_date__date=today)
+
+def schema(data, user_id):
+    reply = "Heute haben wir folgende Themen für dich: \n"
+    for info in data:
+        reply += info.headline + '\n'
+
+    quickreplies = []
+    button = {
+        'content_type' : 'text',
+        'title' : 'Los geht's',
+        'payload' : 'los_gehts'
+    }
+    quickreplies.append(button)
+
+    send_text_and_quickreplies(reply, quickreplies, user_id)
 
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
