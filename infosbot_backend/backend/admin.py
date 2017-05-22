@@ -18,6 +18,9 @@ class InfoModelForm(forms.ModelForm):
 
 class InfoAdmin(admin.ModelAdmin):
     form = InfoModelForm
+    date_hierarchy = 'pub_date'
+    list_display = ('headline', 'pub_date')
+
 
 # Register your models here.
 admin.site.register(Info, InfoAdmin)
