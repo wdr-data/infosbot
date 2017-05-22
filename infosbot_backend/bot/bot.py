@@ -36,8 +36,7 @@ def handle_messages(data):
                 info_id = quick_reply.split('#')[1]
                 info_set = quick_reply.split('#')[2]
                 data = Info.objects.get(id=info_id)
-                next_id = Info.objects.filter(id__gt = info_id)[:1]
-                send_text_with_button(sender_id, data, next_id, info_set)
+                send_info(sender_id, data, info_set)
 
                 # reply = 'Es geht los'
                 # send_text(sender_id, reply)
@@ -80,15 +79,11 @@ def handle_messages(data):
                     "\n\nUm dich für dein automatisches Update zu registrieren klicke auf \"OK\"."
             send_text_with_button(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "info":
-            requested_info_id = event['postback'].get("payload", "").split("#")[1]
-            info = Info.objects.get(id=int(requested_info_id))
-            status = "intro"
-            send_text(sender_id, info.headline)
-            if info.media != "":
-                image = "https://infos.data.wdr.de/backend/static/media/" + str(info.media)
-                send_image(sender_id, image)
-            logger.debug("status in postback: " + status)
-            send_text_with_button(sender_id, info, status)
+            info_id = quick_reply.split('#')[1]
+            info_set = quick_reply.split('#')[2]
+            data = Info.objects.get(id=info_id)
+            next_id = Info.objects.filter(id__gt = info_id)[:1]
+            send_text_with_button(sender_id, data, next_id, info_set)
         elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "more":
             requested_info_id = event['postback'].get("payload", "").split("#")[2]
             info = Info.objects.get(id=int(requested_info_id))
@@ -126,6 +121,41 @@ def schema(data, user_id):
         'payload' : 'info#' + str(first_id) + '#intro'
     }
     quickreplies.append(button)
+
+    send_text_and_quickreplies(reply, quickreplies, user_id)
+
+def send_info(user_id, data, status):
+    next_id = Info.objects.filter(id__gt = info_id)[:1]
+    if status == "intro":
+        status_id = 'one'
+        text = data.intro_text
+        button_title = data.first_question
+    elif status == "one":
+        status_id = 'two'
+        text = data.first_text
+        button_title = data.second_question
+    elif status == "two":
+        status_id = 'next'
+        text = data.second_text
+        button_title = "None"
+
+    quickreplies = []
+    more_button = {
+        'content_type' : 'text',
+        'title' : button_title,
+        'payload' : 'info#' + str(data.id) + '#' + str(status_id)
+    }
+    next_button = {
+        'content_type': 'postback',
+        'title': 'Nächste Info',
+        'payload': 'info#' + str(next) + '#intro'
+    }
+
+    if status_id == 'next':
+        quickreplies.append(next_button)
+    else:
+        quickreplies.append(more_button)
+        quickreplies.append(next_button)
 
     send_text_and_quickreplies(reply, quickreplies, user_id)
 
