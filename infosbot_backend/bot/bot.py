@@ -103,7 +103,9 @@ def handle_messages(data):
 
 def get_data():
     today = timezone.localtime(timezone.now()).date()
-    return Info.objects.filter(pub_date__date=today, published=True)
+    infos = Info.objects.filter(pub_date__date=today, published=True)
+    logger.info("Got %s infos", len(infos))
+    return infos
 
 def schema(data, user_id):
     reply = "Heute haben wir folgende Themen für dich: \n"
@@ -126,7 +128,8 @@ def schema(data, user_id):
 
 def send_info(user_id, data, status):
     try:
-        next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
+        today = timezone.localtime(timezone.now()).date()
+        next_id = Info.objects.filter(id__gt=data.id, pub_date__date=today, published=True)[:1][0].id
     except IndexError:
         next_id = None
 
@@ -161,7 +164,7 @@ def send_info(user_id, data, status):
         quickreplies.append(more_button)
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
-    elif next_id == None:
+    elif next_id is None:
         quickreplies.append(more_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
 
