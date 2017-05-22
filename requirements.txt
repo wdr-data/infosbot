@@ -8,3 +8,4 @@ beautifulsoup4
 lxml
 mutagen
 paste
+fuzzywuzzy[speedup]
