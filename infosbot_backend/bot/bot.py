@@ -122,7 +122,7 @@ def schema(data, user_id):
     button = {
         'content_type' : 'text',
         'title' : "Los geht's",
-        'payload' : 'info#' + first_id + '#intro'
+        'payload' : 'info#' + str(first_id) + '#intro'
     }
     quickreplies.append(button)
 
