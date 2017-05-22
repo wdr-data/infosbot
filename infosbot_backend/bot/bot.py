@@ -148,7 +148,7 @@ def send_info(user_id, data, status):
     next_button = {
         'content_type': 'postback',
         'title': 'Nächste Info',
-        'payload': 'info#' + str(next) + '#intro'
+        'payload': 'info#' + str(next_id) + '#intro'
     }
 
     if status_id == 'next':
