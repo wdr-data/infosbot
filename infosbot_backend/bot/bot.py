@@ -127,8 +127,9 @@ def schema(data, user_id):
 def send_info(user_id, data, status):
     try:
         next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
-    except IndexErrror:
+    except IndexError:
         next_id = None
+
     if status == "intro":
         status_id = 'one'
         reply = data.intro_text
