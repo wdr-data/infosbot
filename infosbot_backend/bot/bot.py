@@ -36,7 +36,8 @@ def handle_messages(data):
                 info_id = quick_reply.split('#')[1]
                 info_set = quick_reply.split('#')[2]
                 data = Info.objects.get(id=info_id)
-                send_text_with_button(sender_id, data, info_set)
+                next_id = Info.objects.get(id__gt = info_id)
+                send_text_with_button(sender_id, data, next_id, info_set)
 
                 # reply = 'Es geht los'
                 # send_text(sender_id, reply)

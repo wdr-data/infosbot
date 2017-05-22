@@ -146,8 +146,7 @@ def send_text_and_quickreplies(reply, quickreplies, recipient_id):
     }
     send(payload)
 
-def send_text_with_button(recipient_id, info, status="other"):
-    next_id = Info.objects.get(id__gt = info_id)
+def send_text_with_button(recipient_id, info, next="none", status="other"):
     """send a message with a button (1-3 buttons possible)"""
     if status == "intro":
         status_id = 'one'
