@@ -146,7 +146,7 @@ def send_info(user_id, data, status):
         'payload' : 'info#' + str(data.id) + '#' + str(status_id)
     }
     next_button = {
-        'content_type': 'postback',
+        'content_type': 'text',
         'title': 'Nächste Info',
         'payload': 'info#' + str(next_id) + '#intro'
     }
