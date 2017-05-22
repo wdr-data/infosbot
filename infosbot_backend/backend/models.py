@@ -39,5 +39,16 @@ class FacebookUser(models.Model):
     name = models.CharField('Name', max_length=64, null=True, blank=True)
     add_date = models.DateTimeField('Hinzugefügt am', default=timezone.now)
 
+
+class Dialogue(models.Model):
+    class Meta:
+        verbose_name = 'Dialog-Schnipsel'
+        verbose_name_plural = 'Dialog-Schnipsel'
+
+    input = models.CharField('Eingabe', max_length=128, null=False, unique=True,
+                             help_text="Der Eingabetext des Nutzers")
+    output = models.CharField('Antwort', max_length=640, null=False, blank=False,
+                              help_text="Die Antwort, die der Bot auf die Eingabe geben soll")
+
     def __str__(self):
-        return '%s (%s)' % (self.name or 'Kein Name', self.uid)
+        return self.input

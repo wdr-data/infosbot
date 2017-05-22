@@ -7,8 +7,9 @@ from flask import Flask, request
 import requests
 #from django.utils.timezone import localtime, now
 from django.utils import timezone
+from fuzzywuzzy import fuzz, process
 
-from backend.models import Info, FacebookUser
+from backend.models import Info, FacebookUser, Dialogue
 from .fb import (send, send_text, send_text_with_button, send_image, send_audio,
                  send_generic_template, send_list_template)
 
@@ -48,7 +49,19 @@ def handle_messages(data):
                         "Wenn du dich registieren möchtest klicke \"OK\". Du kannst deine Entscheidung jederzet wieder ändern."
                 send_text_with_button(sender_id, reply)
             else:
-                reply = "echo: " + text
+                dialogues = Dialogue.objects.all()
+                best_match = process.extractOne(
+                    text,
+                    dialogues,
+                    processor=lambda d: d.input,
+                    scorer=fuzz.token_set_ratio,
+                    score_cutoff=50)
+
+                if best_match:
+                    reply = best_match.output
+                else:
+                    reply = "Tut mir Leid, darauf habe ich keine Antwort."
+
                 send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "start":
             reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\n" \
