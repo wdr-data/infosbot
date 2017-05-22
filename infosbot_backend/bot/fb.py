@@ -147,17 +147,18 @@ def send_text_and_quickreplies(reply, quickreplies, recipient_id):
     send(payload)
 
 def send_text_with_button(recipient_id, info, status="other"):
+    next_id = Info.objects.get(id__gt = info_id)
     """send a message with a button (1-3 buttons possible)"""
     if status == "intro":
-        status_id = 0
+        status_id = 'one'
         text = info.intro_text
         button_title = info.first_question
     elif status == "one":
-        status_id = 1
+        status_id = 'two'
         text = info.first_text
         button_title = info.second_question
     elif status == "two":
-        status_id = 2
+        status_id = 'next'
         text = info.second_text
         button_title = "None"
     elif status == "other":
@@ -168,7 +169,7 @@ def send_text_with_button(recipient_id, info, status="other"):
     if status_id == 3:
         task = 'subscribe#' + recipient_id
     else:
-        task = 'more#' + str(status_id) + '#' + str(info.id)
+        task = 'info#' + str(info.id) + '#' + str(status_id)
 
     more_button = {
         'type': 'postback',
@@ -176,17 +177,17 @@ def send_text_with_button(recipient_id, info, status="other"):
         'payload': task
     }
 
-    back_button = {
+    next_button = {
         'type': 'postback',
-        'title': 'Zurück',
-        'payload': 'back'
+        'title': 'Nächste Info',
+        'payload': 'info#' + str(next) + '#intro'
     }
     buttons = []
-    if status_id == 2:
-        buttons.append(back_button)
+    if status_id == 'next':
+        buttons.append(next_button)
     else:
         buttons.append(more_button)
-        buttons.append(back_button)
+        buttons.append(next_button)
 
     load = {
             'template_type': 'button',

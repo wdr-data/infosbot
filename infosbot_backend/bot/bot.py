@@ -32,9 +32,14 @@ def handle_messages(data):
         # check if we actually have some input
         if "message" in event and event['message'].get("quick_reply", "") != "":
             quick_reply = event['message']['quick_reply']['payload']
-            if quick_reply == 'los_gehts':
-                reply = 'Es geht los'
-                send_text(sender_id, reply)
+            if quick_reply.split("#")[0] == 'info':
+                info_id = quick_reply.split('#')[1]
+                info_set = quick_reply.split('#')[2]
+                data = Info.objects.get(id=info_id)
+                send_text_with_button(sender_id, data, info_set)
+
+                # reply = 'Es geht los'
+                # send_text(sender_id, reply)
         elif "message" in event and event['message'].get("text", "") != "" and event['message'].get('quick_reply') == None:
             logger.debug('received message')
             text = event['message']['text']
@@ -103,18 +108,22 @@ def handle_messages(data):
 
 def get_data():
     today = timezone.localtime(timezone.now()).date()
-    return Info.objects.filter(pub_date__date=today)
+    return Info.objects.filter(pub_date__date=today, published=True)
 
 def schema(data, user_id):
     reply = "Heute haben wir folgende Themen für dich: \n"
+    first_id = None
+
     for info in data:
+        if first_id is None:
+            first_id = info.id
         reply += info.headline + '\n'
 
     quickreplies = []
     button = {
         'content_type' : 'text',
         'title' : "Los geht's",
-        'payload' : 'los_gehts'
+        'payload' : 'info#' + first_id + '#intro'
     }
     quickreplies.append(button)
 
