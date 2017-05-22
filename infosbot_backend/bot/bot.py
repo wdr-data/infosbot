@@ -125,40 +125,44 @@ def schema(data, user_id):
     send_text_and_quickreplies(reply, quickreplies, user_id)
 
 def send_info(user_id, data, status):
+    try:
+        next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
+    except IndexErrror:
+        next_id = None
     if status == "intro":
         status_id = 'one'
         reply = data.intro_text
-        next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
         button_title = data.first_question
     elif status == "one":
         status_id = 'two'
         reply = data.first_text
-        next_id = Info.objects.filter(id__gt = data.id)[:1][0].id
         button_title = data.second_question
     elif status == "two":
         status_id = 'next'
         reply = data.second_text
         button_title = "None"
 
-    if status_id == 'next':
-        send_text(user_id, reply)
-    else:
-        quickreplies = []
-        more_button = {
-            'content_type' : 'text',
-            'title' : button_title,
-            'payload' : 'info#' + str(data.id) + '#' + str(status_id)
-        }
-        next_button = {
-            'content_type': 'text',
-            'title': 'Nächste Info',
-            'payload': 'info#' + str(next_id) + '#intro'
-        }
-
+    quickreplies = []
+    more_button = {
+        'content_type' : 'text',
+        'title' : button_title,
+        'payload' : 'info#' + str(data.id) + '#' + str(status_id)
+    }
+    next_button = {
+        'content_type': 'text',
+        'title': 'Nächste Info',
+        'payload': 'info#' + str(next_id) + '#intro'
+    }
+    if status_id == 'next' and next_id is not None:
+        quickreplies.append(next_button)
+        send_text_and_quickreplies(reply, quickreplies, user_id)
+    elif status_id != 'next' and next_id is not None:
         quickreplies.append(more_button)
         quickreplies.append(next_button)
-
         send_text_and_quickreplies(reply, quickreplies, user_id)
+    elif next_id == None:
+        send_text(user_id, reply)
+
 
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
