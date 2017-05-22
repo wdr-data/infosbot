@@ -13,10 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import os
+
 from django.conf.urls import url
-from django.contrib import admin
+
+from . import views
+
+PAGE_TOKEN = os.environ['INFOSBOT_PAGE_TOKEN']
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^fb/', include('bot.urls')),
+    url(r'^%s/$' % PAGE_TOKEN, views.webhook, name='webhook'),
 ]
