@@ -2,8 +2,6 @@ import datetime
 import logging
 
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
 
 from bot.fb import upload_attachment
@@ -44,23 +42,34 @@ class Info(models.Model):
     def __str__(self):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)
 
+    def save(self, *args, **kwargs):
+        orig = Info.objects.get(id=self.id)
+        fields = ('intro_media', 'first_media', 'second_media')
+        updated_fields = list()
 
-# @receiver(post_save, sender=Info)
-def upload_to_facebook(sender, instance, raw, using, update_fields, **kwargs):
-    fields = ('intro_media', 'first_media', 'second_media')
-    for field_name in fields:
-        field = getattr(instance, field_name)
-        if field.name:
-            url = "https://infos.data.wdr.de/static/media/" + str(field)
-            attachment_id = upload_attachment(url)
-            attachment_field_name = field_name[:-len('media')] + 'attachment_id'
-            setattr(instance, attachment_field_name, attachment_id)
-            instance.save(update_fields=[attachment_field_name])
+        for field_name in fields:
+            field = getattr(self, field_name)
+            orig_field = getattr(orig, field_name)
 
-        else:
-            attachment_field_name = field_name[:-len('media')] + 'attachment_id'
-            setattr(instance, attachment_field_name, None)
-            instance.save(update_fields=[attachment_field_name])
+            if str(field) != str(orig_field):
+                updated_fields.append(field_name)
+
+        super().save(*args, **kwargs)
+
+        for field_name in updated_fields:
+            field = getattr(self, field_name)
+            if str(field):
+                url = "https://infos.data.wdr.de/static/media/" + str(field)
+                attachment_id = upload_attachment(url)
+                attachment_field_name = field_name[:-len('media')] + 'attachment_id'
+                setattr(self, attachment_field_name, attachment_id)
+
+            else:
+                attachment_field_name = field_name[:-len('media')] + 'attachment_id'
+                setattr(self, attachment_field_name, None)
+
+        if updated_fields:
+            self.save()
 
 
 class FacebookUser(models.Model):
