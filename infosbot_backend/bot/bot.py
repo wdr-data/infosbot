@@ -95,15 +95,15 @@ def get_data():
     if time.hour < 20:
         infos = Info.objects.filter(
             pub_date__date=date,
-            pub_date__time__lt=datetime.time(8),
+            pub_date__hour__lt=8,
             published=True,
             breaking=False)
 
     else:
         infos = Info.objects.filter(
             pub_date__date=date,
-            pub_date__time__lt=datetime.time(20),
-            pub_date__time__gt=datetime.time(8),
+            pub_date__hour__gte=8,
+            pub_date__hour__lt=20,
             published=True,
             breaking=False)
 
