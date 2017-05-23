@@ -51,7 +51,10 @@ class Info(models.Model):
         'Facebook Attachment ID', max_length=64, null=True, blank=True,
         help_text="Wird automatisch ausgefüllt")
 
-    pub_date = models.DateTimeField('Veröffentlicht am', default=timezone.now)
+    pub_date = models.DateTimeField(
+        'Veröffentlicht am',
+        default=timezone.now,
+        help_text='Für morgens auf 6:00, für abends auf 18:00 timen (Uhr-Symbol)')
     published = models.BooleanField('Veröffentlicht?', null=False, default=False)
     breaking = models.BooleanField(
         'Breaking?', null=False, default=False,
