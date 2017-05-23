@@ -130,8 +130,8 @@ def send_info(user_id, data, status='intro'):
             button_title = data.first_question
         else:
             status_id = 'next'
-        if data.intro_media != "":
-            image = "https://infos.data.wdr.de/static/media/" + str(data.intro_media)
+        if data.intro_attachment_id != "":
+            image = data.intro_attachment_id
     elif status == "one":
         reply = data.first_text
         if data.second_question != "":
@@ -139,13 +139,13 @@ def send_info(user_id, data, status='intro'):
             button_title = data.second_question
         else:
             status_id = 'next'
-        if data.first_media != "":
-            image = "https://infos.data.wdr.de/static/media/" + str(data.first_media)
+        if data.first_attachment_id != "":
+            image = data.first_attachment_id
     elif status == "two":
         reply = data.second_text
         status_id = 'next'
-        if data.second_media != "":
-            image = "https://infos.data.wdr.de/static/media/" + str(data.second_media)
+        if data.second_attachment_id != "":
+            image = data.second_attachment_id
 
     quickreplies = []
     more_button = {
