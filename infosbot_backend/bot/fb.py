@@ -18,6 +18,30 @@ def send_text(recipient_id, text):
     }
     send(payload)
 
+def send_attachment(recipient_id, attachment_id, type):
+    """send an image to a recipient"""
+
+    recipient = {'id': recipient_id}
+
+    # create an image object
+    image = {'attachment_id': attachment_id}
+
+    # add the image object to an attachment of type "image"
+    attachment = {
+        'type': 'image',
+        'payload': image
+    }
+
+    # add the attachment to a message instead of "text"
+    message = {'attachment': attachment}
+
+    # now create the final payload with the recipient
+    payload = {
+        'recipient': recipient,
+        'message': message
+    }
+    send(payload)
+
 def send_image(recipient_id, image_id):
     """send an image to a recipient"""
 
@@ -274,12 +298,12 @@ def send(payload):
                   headers=headers)
 
 
-def upload_attachment(url, type='image'):
+def upload_attachment(url):
     """Uploads an attachment and returns the attachment ID or None if it fails uploading"""
     payload = {
         "message": {
             "attachment": {
-                "type": type,
+                "type": guess_attachment_type(url),
                 "payload": {
                     "url": url,
                     "is_reusable": True,
@@ -299,3 +323,17 @@ def upload_attachment(url, type='image'):
 
     except:
         return None
+
+
+def guess_attachment_type(filename):
+    ext = os.path.splitext(filename)[1].lower()
+    types = {
+        '.jpg': 'image',
+        '.jpeg': 'image',
+        '.png': 'image',
+        '.gif': 'image',
+        '.mp4': 'video',
+        '.mp3': 'audio',
+    }
+
+    return types.get(ext, None)

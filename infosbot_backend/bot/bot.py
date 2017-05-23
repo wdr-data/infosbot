@@ -10,8 +10,8 @@ from django.utils import timezone
 from fuzzywuzzy import fuzz, process
 
 from backend.models import Info, FacebookUser, Dialogue
-from .fb import (send, send_text, send_text_with_button, send_image, send_audio,
-                 send_generic_template, send_list_template, send_text_and_quickreplies)
+from .fb import (send_text, send_text_with_button, send_attachment, send_list_template,
+                 send_text_and_quickreplies, guess_attachment_type)
 
 # TODO: The idea is simple. When you send "subscribe" to the bot, the bot server would add a record according to the sender_id to their
 # database or memory , then the bot server could set a timer to distribute the news messages to those sender_id who have subscribed for the news.
@@ -132,6 +132,7 @@ def send_info(user_id, data, status='intro'):
             status_id = 'next'
         if data.intro_attachment_id != "":
             image = data.intro_attachment_id
+            url = data.intro_media
     elif status == "one":
         reply = data.first_text
         if data.second_question != "":
@@ -141,11 +142,13 @@ def send_info(user_id, data, status='intro'):
             status_id = 'next'
         if data.first_attachment_id != "":
             image = data.first_attachment_id
+            url = data.first_media
     elif status == "two":
         reply = data.second_text
         status_id = 'next'
         if data.second_attachment_id != "":
             image = data.second_attachment_id
+            url = data.second_media
 
     quickreplies = []
     more_button = {
@@ -159,7 +162,7 @@ def send_info(user_id, data, status='intro'):
         'payload': 'info#' + str(next_id) + '#intro'
     }
     if image != "":
-        send_image(user_id, image)
+        send_attachment(user_id, image, guess_attachment_type(url))
 
     if status_id == 'next' and next_id is not None:
         quickreplies.append(next_button)
