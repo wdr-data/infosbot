@@ -57,7 +57,8 @@ class Info(models.Model):
         super().save(*args, **kwargs)
 
         for field_name in updated_fields:
-            if field.name:
+            field = getattr(self, field_name)
+            if str(field):
                 url = "https://infos.data.wdr.de/static/media/" + str(field)
                 attachment_id = upload_attachment(url)
                 attachment_field_name = field_name[:-len('media')] + 'attachment_id'
