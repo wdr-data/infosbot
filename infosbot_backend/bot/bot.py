@@ -134,23 +134,29 @@ def send_info(user_id, data, status):
     except IndexError:
         next_id = None
     image = ""
+    button_title = ""
 
     if status == "intro":
-        status_id = 'one'
         reply = data.intro_text
-        button_title = data.first_question
+        if data.first_question != "":
+            status_id = 'one'
+            button_title = data.first_question
+        else:
+            status_id = 'next'
         if data.intro_media != "":
             image = "https://infos.data.wdr.de/static/media/" + str(data.intro_media)
     elif status == "one":
-        status_id = 'two'
         reply = data.first_text
-        button_title = data.second_question
+        if data.second_question != "":
+            status_id = 'two'
+            button_title = data.second_question
+        else:
+            status_id = 'next'
         if data.first_media != "":
             image = "https://infos.data.wdr.de/static/media/" + str(data.first_media)
     elif status == "two":
-        status_id = 'next'
         reply = data.second_text
-        button_title = "None"
+        status_id = 'next'
         if data.second_media != "":
             image = "https://infos.data.wdr.de/static/media/" + str(data.second_media)
 
@@ -167,6 +173,7 @@ def send_info(user_id, data, status):
     }
     if image != "":
         send_image(user_id, image)
+
     if status_id == 'next' and next_id is not None:
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
