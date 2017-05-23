@@ -138,14 +138,20 @@ def send_info(user_id, data, status):
         status_id = 'one'
         reply = data.intro_text
         button_title = data.first_question
+        if info.intro_media != "":
+            image = "https://infos.data.wdr.de/backend/static/media/" + str(info.intro_media)
     elif status == "one":
         status_id = 'two'
         reply = data.first_text
         button_title = data.second_question
+        if info.first_media != "":
+            image = "https://infos.data.wdr.de/backend/static/media/" + str(info.first_media)
     elif status == "two":
         status_id = 'next'
         reply = data.second_text
         button_title = "None"
+        if info.second_media != "":
+            image = "https://infos.data.wdr.de/backend/static/media/" + str(info.second_media)
 
     quickreplies = []
     more_button = {
@@ -158,6 +164,8 @@ def send_info(user_id, data, status):
         'title': 'Nächste Info',
         'payload': 'info#' + str(next_id) + '#intro'
     }
+    if image != "":
+        send_image(user_id, image)
     if status_id == 'next' and next_id is not None:
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
