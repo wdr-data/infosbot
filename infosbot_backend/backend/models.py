@@ -60,6 +60,9 @@ class Info(models.Model):
         'Breaking?', null=False, default=False,
         help_text='Breaking-News werden außerhalb der regelmäßigen Push-Zyklen zu der angegebenen '
                   'Zeit gesendet')
+    delivered = models.BooleanField(
+        'Versendet?', null=False, default=False,
+        help_text="Wurde die Info bereits vom Bot versendet? Nur relevant für Breaking-News.")
 
     def __str__(self):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)

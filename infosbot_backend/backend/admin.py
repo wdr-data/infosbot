@@ -26,6 +26,12 @@ class InfoModelForm(forms.ModelForm):
         label='Facebook Attachment ID', help_text="Wird automatisch ausgefüllt", disabled=True,
         required=False)
 
+    delivered = forms.BooleanField(
+        label='Versendet?',
+        help_text="Wurde die Info bereits vom Bot versendet? Nur relevant für Breaking-News.",
+        disabled=True,
+        required=False)
+
     class Meta:
         model = Info
         fields = '__all__'
