@@ -116,8 +116,8 @@ def schema(data, user_id):
 
 def send_info(user_id, data, status='intro'):
     try:
-        today = timezone.localtime(timezone.now()).date()
-        next_id = Info.objects.filter(id__gt=data.id, pub_date__date=today, published=True)[:1][0].id
+        current_date = data.pub_date.date()
+        next_id = Info.objects.filter(id__gt=data.id, pub_date__date=current_date, published=True)[:1][0].id
     except IndexError:
         next_id = None
     media = ""
