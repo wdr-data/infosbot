@@ -42,6 +42,15 @@ class Info(models.Model):
         'Facebook Attachment ID', max_length=64, null=True, blank=True,
         help_text="Wird automatisch ausgefüllt")
 
+    third_question = models.CharField('Dritte Frage', max_length=20, null=True, blank=True)
+    third_text = models.CharField('Dritter Text', max_length=600, null=True, blank=True)
+    third_media = models.FileField('Dritter Medien-Anhang', null=True, blank=True)
+    third_media_note = models.CharField(
+        'Anmerkung', max_length=128, null=True, blank=True, help_text='z. B. Bildrechte')
+    third_attachment_id = models.CharField(
+        'Facebook Attachment ID', max_length=64, null=True, blank=True,
+        help_text="Wird automatisch ausgefüllt")
+
     pub_date = models.DateTimeField('Veröffentlicht am', default=timezone.now)
     published = models.BooleanField('Veröffentlicht?', null=False, default=False)
     breaking = models.BooleanField(
@@ -53,15 +62,19 @@ class Info(models.Model):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)
 
     def save(self, *args, **kwargs):
-        orig = Info.objects.get(id=self.id)
-        fields = ('intro_media', 'first_media', 'second_media')
+        try:
+            orig = Info.objects.get(id=self.id)
+        except Info.DoesNotExist:
+            orig = None
+
+        fields = ('intro_media', 'first_media', 'second_media', 'third_media')
         updated_fields = list()
 
         for field_name in fields:
             field = getattr(self, field_name)
-            orig_field = getattr(orig, field_name)
+            orig_field = getattr(orig, field_name) if orig else ''
 
-            if str(field) != str(orig_field):
+            if not orig and str(field) or str(field) != str(orig_field):
                 updated_fields.append(field_name)
 
         super().save(*args, **kwargs)

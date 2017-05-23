@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import csv
+import datetime
 
 from flask import Flask, request
 import requests
@@ -87,10 +88,43 @@ def handle_messages(data):
             unsubscribe_user(sender_id)
 
 def get_data():
-    today = timezone.localtime(timezone.now()).date()
-    infos = Info.objects.filter(pub_date__date=today, published=True)
-    logger.info("Got %s infos", len(infos))
+    now = timezone.localtime(timezone.now())
+    date = now.date()
+    time = now.time()
+
+    if time.hour < 20:
+        infos = Info.objects.filter(
+            pub_date__date=date,
+            pub_date__hour__lt=8,
+            published=True,
+            breaking=False)
+
+    else:
+        infos = Info.objects.filter(
+            pub_date__date=date,
+            pub_date__hour__gte=8,
+            pub_date__hour__lt=20,
+            published=True,
+            breaking=False)
+
     return infos
+
+def get_breaking():
+    now = timezone.localtime(timezone.now())
+    date = now.date()
+    time = now.time()
+
+    try:
+        return Info.objects.get(
+            pub_date__date=date,
+            pub_date__hour=time.hour,
+            pub_date__minute__lt=time.minute,
+            pub_date__minute__gt=time.minute - 1,
+            published=True,
+            breaking=True)
+
+    except Info.DoesNotExist:
+        return None
 
 def schema(data, user_id):
     reply = "Heute haben wir folgende Themen für dich:"
@@ -148,11 +182,22 @@ def send_info(user_id, data, status='intro'):
             media_note = data.first_media_note
     elif status == "two":
         reply = data.second_text
-        status_id = 'next'
+        if data.third_question != "":
+            status_id = 'three'
+            button_title = data.third_question
+        else:
+            status_id = 'next'
         if data.second_attachment_id != "":
             media = data.second_attachment_id
             url = data.second_media
             media_note = data.second_media_note
+    elif status == "three":
+        reply = data.third_text
+        status_id = 'next'
+        if data.third_attachment_id != "":
+            media = data.third_attachment_id
+            url = data.third_media
+            media_note = data.third_media_note
 
     quickreplies = []
     more_button = {
