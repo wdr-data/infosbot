@@ -133,6 +133,7 @@ def send_info(user_id, data, status):
         next_id = Info.objects.filter(id__gt=data.id, pub_date__date=today, published=True)[:1][0].id
     except IndexError:
         next_id = None
+    image = ""
 
     if status == "intro":
         status_id = 'one'
