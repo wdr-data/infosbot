@@ -236,14 +236,15 @@ def send_info(user_id, data, status='intro'):
         if str(media_note):
             send_text(user_id, media_note)
 
+    if data.breaking:
+        next_id = None
+
     if status_id == 'next' and next_id is not None:
-        if not data.breaking:
-            quickreplies.append(next_button)
+        quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id != 'next' and next_id is not None:
         quickreplies.append(more_button)
-        if not data.breaking:
-            quickreplies.append(next_button)
+        quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id != 'next' and next_id is None:
         quickreplies.append(more_button)
@@ -290,7 +291,7 @@ def push_breaking():
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
         logger.debug("Send Push to: " + user)
-        reply = "Heute haben wir folgende Themen für dich:"
+        reply = "Breaking News!"
         send_text(user, reply)
         send_info(user, data)
         sleep(1)
