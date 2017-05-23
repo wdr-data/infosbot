@@ -121,8 +121,7 @@ def get_breaking():
         return Info.objects.get(
             pub_date__date=date,
             pub_date__hour=time.hour,
-            pub_date__minute__lt=time.minute,
-            pub_date__minute__gt=time.minute - 1,
+            pub_date__minute=time.minute,
             published=True,
             breaking=True)
 
@@ -296,7 +295,7 @@ def push_breaking():
     data.delivered = True
     data.save(update_fields=['delivered'])
 
-schedule.every(50).seconds.do(push_breaking)
+schedule.every(30).seconds.do(push_breaking)
 schedule.every().day.at("20:00").do(push_notification)
 
 def schedule_loop():
