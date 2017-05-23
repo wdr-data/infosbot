@@ -45,7 +45,7 @@ class Info(models.Model):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)
 
 
-@receiver(post_save, sender=Info)
+# @receiver(post_save, sender=Info)
 def upload_to_facebook(sender, instance, raw, using, update_fields, **kwargs):
     fields = ('intro_media', 'first_media', 'second_media')
     for field_name in fields:
