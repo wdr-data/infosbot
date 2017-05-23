@@ -272,3 +272,30 @@ def send(payload):
     requests.post("https://graph.facebook.com/v2.6/me/messages?access_token=" + PAGE_TOKEN,
                   data=json.dumps(payload),
                   headers=headers)
+
+
+def upload_attachment(url, type='image'):
+    """Uploads an attachment and returns the attachment ID or None if it fails uploading"""
+    payload = {
+        "message": {
+            "attachment": {
+                "type": type,
+                "payload": {
+                    "url": url,
+                    "is_reusable": True,
+                }
+            }
+        }
+    }
+    logger.debug("JSON Payload: " + json.dumps(payload))
+    headers = {'Content-Type': 'application/json'}
+    r = requests.post(
+        "https://graph.facebook.com/v2.6/me/message_attachments?access_token=" + PAGE_TOKEN,
+        data=json.dumps(payload),
+        headers=headers)
+
+    try:
+        return json.loads(r.content.decode())['attachment_id']
+
+    except:
+        return None
