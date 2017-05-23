@@ -53,15 +53,19 @@ class Info(models.Model):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)
 
     def save(self, *args, **kwargs):
-        orig = Info.objects.get(id=self.id)
+        try:
+            orig = Info.objects.get(id=self.id)
+        except Info.DoesNotExist:
+            orig = None
+
         fields = ('intro_media', 'first_media', 'second_media')
         updated_fields = list()
 
         for field_name in fields:
             field = getattr(self, field_name)
-            orig_field = getattr(orig, field_name)
+            orig_field = getattr(orig, field_name) if orig else ''
 
-            if str(field) != str(orig_field):
+            if not orig and str(field) or str(field) != str(orig_field):
                 updated_fields.append(field_name)
 
         super().save(*args, **kwargs)
