@@ -67,7 +67,8 @@ class Info(models.Model):
                 attachment_field_name = field_name[:-len('media')] + 'attachment_id'
                 setattr(self, attachment_field_name, None)
 
-        self.save()
+        if updated_fields:
+            self.save()
 
 
 class FacebookUser(models.Model):
