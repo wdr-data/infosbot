@@ -18,6 +18,8 @@ class Info(models.Model):
     headline = models.CharField('Schlagzeile', max_length=200, null=False)
     intro_text = models.CharField('Intro-Text', max_length=200, null=False)
     intro_media = models.FileField('Medien-Anhang Intro', null=True, blank=True)
+    intro_media_note = models.CharField(
+        'Anmerkung', max_length=128, null=True, blank=True, help_text='z. B. Bildrechte')
     intro_attachment_id = models.CharField(
         'Facebook Attachment ID', max_length=64, null=True, blank=True,
         help_text="Wird automatisch ausgefüllt")
@@ -25,6 +27,8 @@ class Info(models.Model):
     first_question = models.CharField('Erste Frage', max_length=20, null=True, blank=True)
     first_text = models.CharField('Erster Text', max_length=600, null=True, blank=True)
     first_media = models.FileField('Erster Medien-Anhang', null=True, blank=True)
+    first_media_note = models.CharField(
+        'Anmerkung', max_length=128, null=True, blank=True, help_text='z. B. Bildrechte')
     first_attachment_id = models.CharField(
         'Facebook Attachment ID', max_length=64, null=True, blank=True,
         help_text="Wird automatisch ausgefüllt")
@@ -32,12 +36,18 @@ class Info(models.Model):
     second_question = models.CharField('Zweite Frage', max_length=20, null=True, blank=True)
     second_text = models.CharField('Zweiter Text', max_length=600, null=True, blank=True)
     second_media = models.FileField('Zweiter Medien-Anhang', null=True, blank=True)
+    second_media_note = models.CharField(
+        'Anmerkung', max_length=128, null=True, blank=True, help_text='z. B. Bildrechte')
     second_attachment_id = models.CharField(
         'Facebook Attachment ID', max_length=64, null=True, blank=True,
         help_text="Wird automatisch ausgefüllt")
 
     pub_date = models.DateTimeField('Veröffentlicht am', default=timezone.now)
     published = models.BooleanField('Veröffentlicht?', null=False, default=False)
+    breaking = models.BooleanField(
+        'Breaking?', null=False, default=False,
+        help_text='Breaking-News werden außerhalb der regelmäßigen Push-Zyklen zu der angegebenen '
+                  'Zeit gesendet')
 
     def __str__(self):
         return '%s - %s' % (self.pub_date.strftime('%d.%m.%Y'), self.headline)

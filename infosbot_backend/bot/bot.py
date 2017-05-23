@@ -121,6 +121,7 @@ def send_info(user_id, data, status='intro'):
     except IndexError:
         next_id = None
     media = ""
+    media_note = ""
     button_title = ""
 
     if status == "intro":
@@ -133,6 +134,7 @@ def send_info(user_id, data, status='intro'):
         if data.intro_attachment_id != "":
             media = data.intro_attachment_id
             url = data.intro_media
+            media_note = data.intro_media_note
     elif status == "one":
         reply = data.first_text
         if data.second_question != "":
@@ -143,12 +145,14 @@ def send_info(user_id, data, status='intro'):
         if data.first_attachment_id != "":
             media = data.first_attachment_id
             url = data.first_media
+            media_note = data.first_media_note
     elif status == "two":
         reply = data.second_text
         status_id = 'next'
         if data.second_attachment_id != "":
             media = data.second_attachment_id
             url = data.second_media
+            media_note = data.second_media_note
 
     quickreplies = []
     more_button = {
@@ -161,8 +165,10 @@ def send_info(user_id, data, status='intro'):
         'title': 'Nächste Info',
         'payload': 'info#' + str(next_id) + '#intro'
     }
-    if str(media) != "":
+    if str(media):
         send_attachment(user_id, str(media), guess_attachment_type(str(url)))
+        if str(media_note):
+            send_text(user_id, media_note)
 
     if status_id == 'next' and next_id is not None:
         quickreplies.append(next_button)

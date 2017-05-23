@@ -28,7 +28,7 @@ class InfoModelForm(forms.ModelForm):
 class InfoAdmin(admin.ModelAdmin):
     form = InfoModelForm
     date_hierarchy = 'pub_date'
-    list_filter = ['published']
+    list_filter = ['published', 'breaking']
     search_fields = ['headline']
     list_display = ('headline', 'pub_date', 'published')
 
