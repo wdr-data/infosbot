@@ -29,7 +29,7 @@ class InfoModelForm(forms.ModelForm):
     delivered = forms.BooleanField(
         label='Versendet?',
         help_text="Wurde die Info bereits vom Bot versendet? Nur relevant für Breaking-News.",
-        disabled=True,
+        #disabled=True,
         required=False)
 
     class Meta:
