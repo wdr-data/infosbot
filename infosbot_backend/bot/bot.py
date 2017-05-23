@@ -150,7 +150,7 @@ def send_info(user_id, data, status='intro'):
         reply = data.second_text
         if data.third_question != "":
             status_id = 'three'
-            button_title = data.second_question
+            button_title = data.third_question
         else:
             status_id = 'next'
         if data.second_attachment_id != "":
