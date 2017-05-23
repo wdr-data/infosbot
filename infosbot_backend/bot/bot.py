@@ -43,7 +43,6 @@ def handle_messages(data):
             if text == '/info':
                 data = get_data()
                 schema(data, sender_id)
-                #send_list_template(data, sender_id)
             elif text == '/testpush':
                 reply = "Push Notification Test..."
                 send_text(sender_id, reply)
@@ -76,10 +75,8 @@ def handle_messages(data):
                     "\n\nUm dich für dein automatisches Update zu registrieren klicke auf \"OK\"."
             send_text_with_button(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "info":
-            info_id = quick_reply.split('#')[1]
-            info_set = quick_reply.split('#')[2]
-            data = Info.objects.get(id=info_id)
-            send_info(sender_id, data, info_set)
+            data = get_data()
+            schema(data, sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "subscribe":
             subscribe_user(sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "unsubscribe":
@@ -111,7 +108,7 @@ def schema(data, user_id):
 
     send_text_and_quickreplies(reply, quickreplies, user_id)
 
-def send_info(user_id, data, status):
+def send_info(user_id, data, status='intro'):
     try:
         today = timezone.localtime(timezone.now()).date()
         next_id = Info.objects.filter(id__gt=data.id, pub_date__date=today, published=True)[:1][0].id
