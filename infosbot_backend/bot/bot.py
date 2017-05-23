@@ -4,6 +4,7 @@ import os
 import csv
 import datetime
 from threading import Thread
+from time import sleep
 
 from flask import Flask, request
 import requests
@@ -120,8 +121,7 @@ def get_breaking():
         return Info.objects.get(
             pub_date__date=date,
             pub_date__hour=time.hour,
-            pub_date__minute__lt=time.minute,
-            pub_date__minute__gt=time.minute - 1,
+            pub_date__minute=time.minute,
             published=True,
             breaking=True)
 
@@ -280,6 +280,7 @@ def push_notification():
         reply = "Heute haben wir folgende Themen für dich:"
         send_text(user, reply)
         send_info(user, data)
+        sleep(1)
 
 def push_breaking():
     data = get_breaking()
@@ -291,9 +292,11 @@ def push_breaking():
         reply = "Heute haben wir folgende Themen für dich:"
         send_text(user, reply)
         send_info(user, data)
+        sleep(1)
     data.delivered = True
+    data.save(update_fields=['delivered'])
 
-schedule.every(50).seconds.do(push_breaking)
+schedule.every(30).seconds.do(push_breaking)
 schedule.every().day.at("20:00").do(push_notification)
 
 def schedule_loop():
