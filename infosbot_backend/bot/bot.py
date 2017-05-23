@@ -37,16 +37,12 @@ def handle_messages(data):
                 info_set = quick_reply.split('#')[2]
                 data = Info.objects.get(id=info_id)
                 send_info(sender_id, data, info_set)
-
-                # reply = 'Es geht los'
-                # send_text(sender_id, reply)
         elif "message" in event and event['message'].get("text", "") != "" and event['message'].get('quick_reply') == None:
             logger.debug('received message')
             text = event['message']['text']
             if text == '/info':
                 data = get_data()
                 schema(data, sender_id)
-                #send_list_template(data, sender_id)
             elif text == '/testpush':
                 reply = "Push Notification Test..."
                 send_text(sender_id, reply)
@@ -78,28 +74,13 @@ def handle_messages(data):
                     "\nWas Du dafür tun musst: Fast nichts." \
                     "\n\nUm dich für dein automatisches Update zu registrieren klicke auf \"OK\"."
             send_text_with_button(sender_id, reply)
-        elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "info":
-            info_id = quick_reply.split('#')[1]
-            info_set = quick_reply.split('#')[2]
-            data = Info.objects.get(id=info_id)
-            next_id = Info.objects.filter(id__gt = info_id)[:1]
-            send_text_with_button(sender_id, data, next_id, info_set)
-        elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "more":
-            requested_info_id = event['postback'].get("payload", "").split("#")[2]
-            info = Info.objects.get(id=int(requested_info_id))
-            logger.debug(event['postback'].get("payload", "").split("#")[1])
-            if event['postback'].get("payload", "").split("#")[1] == "0":
-                status = "one"
-            elif event['postback'].get("payload", "").split("#")[1] == "1":
-                status = "two"
-            send_text_with_button(sender_id, info, status)
-            # reply = "Hier folgen weitere Infos zum Thema."
-            # send_text(sender_id, reply)
-        elif "postback" in event and event['postback'].get("payload", "").split("#")[0] == "subscribe":
-            subscribe_user(sender_id)
-        elif "postback" in event and event['postback'].get("payload", "") == "back":
+        elif "postback" in event and event['postback'].get("payload", "") == "info":
             data = get_data()
-            #send_list_template(data, sender_id)
+            schema(data, sender_id)
+        elif "postback" in event and event['postback'].get("payload", "") == "subscribe":
+            subscribe_user(sender_id)
+        elif "postback" in event and event['postback'].get("payload", "") == "unsubscribe":
+            unsubscribe_user(sender_id)
 
 def get_data():
     today = timezone.localtime(timezone.now()).date()
@@ -127,7 +108,7 @@ def schema(data, user_id):
 
     send_text_and_quickreplies(reply, quickreplies, user_id)
 
-def send_info(user_id, data, status):
+def send_info(user_id, data, status='intro'):
     try:
         today = timezone.localtime(timezone.now()).date()
         next_id = Info.objects.filter(id__gt=data.id, pub_date__date=today, published=True)[:1][0].id
@@ -187,7 +168,6 @@ def send_info(user_id, data, status):
     elif status_id == 'next' and next_id is None:
         send_text(user_id, reply)
 
-
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
         reply = "Du bist bereits für Push Nachrichten angemeldet."
@@ -195,14 +175,14 @@ def subscribe_user(user_id):
     else:
         FacebookUser.objects.create(uid = user_id)
         logger.debug('User with ID ' + str(FacebookUser.objects.latest('add_date')) + ' subscribed.')
-        reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update jeweils um 8:00 Uhr wochentags."
+        reply = "Danke für deine Anmeldung!\nDu erhältst nun ein tägliches Update."
         send_text(user_id, reply)
 
 def unsubscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
-        logger.debug('User with ID ' + str(FacebookUser.objects.get(uid = user_id)) + ' unsubscribed.')
+        logger.debug('deleted user with ID: ' + str(FacebookUser.objects.get(uid = user_id)))
         FacebookUser.objects.get(uid = user_id).delete()
-        reply = "Du wurdest aus der Empfängerliste für Push Benachrichtigungen gestrichen. Danke!"
+        reply = "Schade, dass du uns verlassen möchtest. Du wurdest aus der Empfängerliste für Push Benachrichtigungen gestrichen."
         send_text(user_id, reply)
     else:
         reply = "Du bist noch kein Nutzer der Push Nachrichten. Wenn du dich anmelden möchtest wähle \'Anmelden\' im Menü."
