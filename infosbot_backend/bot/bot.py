@@ -171,7 +171,7 @@ def send_info(user_id, data, status='intro'):
                 pub_date__hour__gte=8,
                 pub_date__hour__lt=20,
                 published=True,
-                breaking=False)[:1][0].id
+                breaking=False)[:1][0]
 
     except IndexError:
         next = None
