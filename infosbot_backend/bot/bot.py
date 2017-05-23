@@ -148,11 +148,22 @@ def send_info(user_id, data, status='intro'):
             media_note = data.first_media_note
     elif status == "two":
         reply = data.second_text
-        status_id = 'next'
+        if data.third_question != "":
+            status_id = 'three'
+            button_title = data.second_question
+        else:
+            status_id = 'next'
         if data.second_attachment_id != "":
             media = data.second_attachment_id
             url = data.second_media
             media_note = data.second_media_note
+    elif status == "three":
+        reply = data.third_text
+        status_id = 'next'
+        if data.third_attachment_id != "":
+            media = data.third_attachment_id
+            url = data.third_media
+            media_note = data.third_media_note
 
     quickreplies = []
     more_button = {
