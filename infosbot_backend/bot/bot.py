@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import csv
+import datetime
 
 from flask import Flask, request
 import requests
@@ -87,10 +88,42 @@ def handle_messages(data):
             unsubscribe_user(sender_id)
 
 def get_data():
-    today = timezone.localtime(timezone.now()).date()
-    infos = Info.objects.filter(pub_date__date=today, published=True)
-    logger.info("Got %s infos", len(infos))
+    now = timezone.localtime(timezone.now())
+    date = now.date()
+    time = now.time()
+
+    if time.hour < 20:
+        infos = Info.objects.filter(
+            pub_date__date=date,
+            pub_date__time__lt=datetime.time(8),
+            published=True,
+            breaking=False)
+
+    else:
+        infos = Info.objects.filter(
+            pub_date__date=date,
+            pub_date__time__lt=datetime.time(20),
+            pub_date__time__gt=datetime.time(8),
+            published=True,
+            breaking=False)
+
     return infos
+
+def get_breaking():
+    now = timezone.localtime(timezone.now())
+    date = now.date()
+    time = now.time()
+
+    try:
+        return Info.objects.get(
+            pub_date__date=date,
+            pub_date__time__lt=datetime.time(time.hour, time.minute),
+            pub_date__time__gt=datetime.time(time.hour, time.minute - 1),
+            published=True,
+            breaking=True)
+
+    except Info.DoesNotExist:
+        return None
 
 def schema(data, user_id):
     reply = "Heute haben wir folgende Themen für dich:"
