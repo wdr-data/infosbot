@@ -114,7 +114,6 @@ def schema(data, user_id):
     for info in data:
         if first_id is None:
             first_id = info.id
-            reply += ' +++ ' + info.headline
         reply += ' +++ ' + info.headline
     reply += ' +++ '
 
@@ -166,9 +165,11 @@ def send_info(user_id, data, status):
         quickreplies.append(more_button)
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
-    elif next_id is None:
+    elif status_id != 'next' and next_id is None:
         quickreplies.append(more_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
+    elif status_id == 'next' and next_id is None:
+        send_text(user_id, reply)
 
 
 def subscribe_user(user_id):
