@@ -162,7 +162,7 @@ def send_info(user_id, data, status='intro'):
         'payload': 'info#' + str(next_id) + '#intro'
     }
     if media != "":
-        send_attachment(user_id, media, guess_attachment_type(url))
+        send_attachment(user_id, media, guess_attachment_type(str(url)))
 
     if status_id == 'next' and next_id is not None:
         quickreplies.append(next_button)
