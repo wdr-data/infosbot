@@ -161,7 +161,7 @@ def send_info(user_id, data, status='intro'):
         'title': 'Nächste Info',
         'payload': 'info#' + str(next_id) + '#intro'
     }
-    if media != "":
+    if str(media) != "":
         send_attachment(user_id, media, guess_attachment_type(str(url)))
 
     if status_id == 'next' and next_id is not None:
