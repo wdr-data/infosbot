@@ -241,17 +241,17 @@ def send_info(user_id, data, status='intro'):
     if data.breaking:
         next_id = None
 
-    if status_id == 'next' and next_id is not None:
+    if status_id == 'next' and next is not None:
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
-    elif status_id != 'next' and next_id is not None:
+    elif status_id != 'next' and next is not None:
         quickreplies.append(more_button)
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
-    elif status_id != 'next' and next_id is None:
+    elif status_id != 'next' and next is None:
         quickreplies.append(more_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
-    elif status_id == 'next' and next_id is None:
+    elif status_id == 'next' and next is None:
         send_text(user_id, reply)
         if not data.breaking:
             media = '327361671016000'
