@@ -23,13 +23,13 @@ def send_attachment(recipient_id, attachment_id, type):
 
     recipient = {'id': recipient_id}
 
-    # create an image object
-    image = {'attachment_id': attachment_id}
+    # create a media object
+    media = {'attachment_id': attachment_id}
 
     # add the image object to an attachment of type "image"
     attachment = {
-        'type': 'image',
-        'payload': image
+        'type': type,
+        'payload': media
     }
 
     # add the attachment to a message instead of "text"

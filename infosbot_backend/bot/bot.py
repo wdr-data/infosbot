@@ -133,7 +133,6 @@ def send_info(user_id, data, status='intro'):
         if data.intro_attachment_id != "":
             media = data.intro_attachment_id
             url = data.intro_media
-            logger.info(str(url))
     elif status == "one":
         reply = data.first_text
         if data.second_question != "":
@@ -144,14 +143,12 @@ def send_info(user_id, data, status='intro'):
         if data.first_attachment_id != "":
             media = data.first_attachment_id
             url = data.first_media
-            logger.info(str(url))
     elif status == "two":
         reply = data.second_text
         status_id = 'next'
         if data.second_attachment_id != "":
             media = data.second_attachment_id
             url = data.second_media
-            logger.info(str(url))
 
     quickreplies = []
     more_button = {
