@@ -150,8 +150,27 @@ def schema(data, user_id):
 
 def send_info(user_id, data, status='intro'):
     try:
-        current_date = data.pub_date.date()
-        next_id = Info.objects.filter(id__gt=data.id, pub_date__date=current_date, published=True)[:1][0].id
+        current_dt = data.pub_date
+        date = current_dt.date()
+        time = current_dt.time()
+
+        if time.hour < 8:
+            next_id = Info.objects.filter(
+                id__gt=data.id,
+                pub_date__date=date,
+                pub_date__hour__lt=8,
+                published=True,
+                breaking=False)[:1][0].id
+
+        else:
+            next_id = Info.objects.filter(
+                id__gt=data.id,
+                pub_date__date=date,
+                pub_date__hour__gte=8,
+                pub_date__hour__lt=20,
+                published=True,
+                breaking=False)[:1][0].id
+
     except IndexError:
         next_id = None
     media = ""
