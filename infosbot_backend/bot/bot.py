@@ -115,6 +115,7 @@ def schema(data, user_id):
         if first_id is None:
             first_id = info.id
             reply += ' +++ ' + info.headline
+        reply += ' +++ ' + info.headline
     reply += ' +++ '
 
     quickreplies = []
