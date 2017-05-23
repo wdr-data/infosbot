@@ -293,7 +293,7 @@ def push_breaking():
     for user in user_list:
         logger.debug("Send Push to: " + user)
         media = '327430241009143'
-        send_attachment(user_id, media, 'image')
+        send_attachment(user, media, 'image')
         send_info(user, data)
         sleep(1)
     data.delivered = True
