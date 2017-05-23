@@ -45,7 +45,7 @@ def handle_messages(data):
             logger.debug('received message')
             text = event['message']['text']
             if text == '/info':
-                data = get_data()
+                data = get_data(force_latest=True)
                 schema(data, sender_id)
             elif text == '/testpush':
                 reply = "Push Notification Test..."
@@ -90,12 +90,12 @@ def handle_messages(data):
         elif "postback" in event and event['postback'].get("payload", "") == "unsubscribe":
             unsubscribe_user(sender_id)
 
-def get_data():
+def get_data(force_latest=False):
     now = timezone.localtime(timezone.now())
     date = now.date()
     time = now.time()
 
-    if time.hour < 20:
+    if time.hour < 20 and not force_latest:
         infos = Info.objects.filter(
             pub_date__date=date,
             pub_date__hour__lt=8,
@@ -300,6 +300,7 @@ def push_breaking():
 
 schedule.every(30).seconds.do(push_breaking)
 schedule.every().day.at("20:00").do(push_notification)
+schedule.every().day.at("08:00").do(push_notification)
 
 def schedule_loop():
     while True:
