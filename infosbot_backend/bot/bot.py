@@ -76,7 +76,11 @@ def handle_messages(data):
             send_text_with_button(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "info":
             data = get_data()
-            schema(data, sender_id)
+            if len(data) == 0:
+                reply = "Dein News Update ist noch in Arbeit. Komme später wieder..."
+                send_text(sender_id, reply)
+            else:
+                schema(data, sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "subscribe":
             subscribe_user(sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "unsubscribe":
@@ -89,7 +93,9 @@ def get_data():
     return infos
 
 def schema(data, user_id):
-    reply = "Heute haben wir folgende Themen für dich: \n"
+    reply = "Heute haben wir folgende Themen für dich:"
+    send_text(user_id, reply)
+    reply = ""
     first_id = None
 
     for info in data:
@@ -124,8 +130,8 @@ def send_info(user_id, data, status='intro'):
             button_title = data.first_question
         else:
             status_id = 'next'
-        if data.intro_media != "":
-            image = "https://infos.data.wdr.de/static/media/" + str(data.intro_media)
+        if data.intro_attachment_id != "":
+            image = data.intro_attachment_id
     elif status == "one":
         reply = data.first_text
         if data.second_question != "":
@@ -133,13 +139,13 @@ def send_info(user_id, data, status='intro'):
             button_title = data.second_question
         else:
             status_id = 'next'
-        if data.first_media != "":
-            image = "https://infos.data.wdr.de/static/media/" + str(data.first_media)
+        if data.first_attachment_id != "":
+            image = data.first_attachment_id
     elif status == "two":
         reply = data.second_text
         status_id = 'next'
-        if data.second_media != "":
-            image = "https://infos.data.wdr.de/static/media/" + str(data.second_media)
+        if data.second_attachment_id != "":
+            image = data.second_attachment_id
 
     quickreplies = []
     more_button = {

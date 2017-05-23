@@ -18,13 +18,13 @@ def send_text(recipient_id, text):
     }
     send(payload)
 
-def send_image(recipient_id, image_url):
+def send_image(recipient_id, image_id):
     """send an image to a recipient"""
 
     recipient = {'id': recipient_id}
 
     # create an image object
-    image = {'url': image_url}
+    image = {'attachment_id': image_id}
 
     # add the image object to an attachment of type "image"
     attachment = {
