@@ -236,14 +236,15 @@ def send_info(user_id, data, status='intro'):
         if str(media_note):
             send_text(user_id, media_note)
 
-    if status_id == 'next' and next_id is not None:
+    if status_id == 'next' and next_id is not None and data.breaking == False:
         quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id != 'next' and next_id is not None:
         quickreplies.append(more_button)
-        quickreplies.append(next_button)
+        if data.breaking == False:
+            quickreplies.append(next_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
-    elif status_id != 'next' and next_id is None:
+    elif status_id != 'next' and next_id is None and data.breaking == False:
         quickreplies.append(more_button)
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id == 'next' and next_id is None:
