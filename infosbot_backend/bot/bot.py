@@ -280,9 +280,7 @@ def push_notification():
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
         logger.debug("Send Push to: " + user)
-        reply = "Heute haben wir folgende Themen für dich:"
-        send_text(user, reply)
-        send_info(user, data)
+        schema(data, user)
         sleep(1)
 
 def push_breaking():
@@ -300,7 +298,7 @@ def push_breaking():
     data.save(update_fields=['delivered'])
 
 schedule.every(30).seconds.do(push_breaking)
-schedule.every().day.at("20:00").do(push_notification)
+schedule.every().day.at("20:10").do(push_notification)
 schedule.every().day.at("08:00").do(push_notification)
 
 def schedule_loop():
