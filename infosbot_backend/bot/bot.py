@@ -176,6 +176,8 @@ def send_info(user_id, data, status='intro'):
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id == 'next' and next_id is None:
         send_text(user_id, reply)
+        image = '327361671016000'
+        send_image(user_id, image)
 
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
