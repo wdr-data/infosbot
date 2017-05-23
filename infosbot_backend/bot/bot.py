@@ -120,7 +120,7 @@ def send_info(user_id, data, status='intro'):
         next_id = Info.objects.filter(id__gt=data.id, pub_date__date=today, published=True)[:1][0].id
     except IndexError:
         next_id = None
-    image = ""
+    media = ""
     button_title = ""
 
     if status == "intro":
@@ -131,7 +131,7 @@ def send_info(user_id, data, status='intro'):
         else:
             status_id = 'next'
         if data.intro_attachment_id != "":
-            image = data.intro_attachment_id
+            media = data.intro_attachment_id
             url = data.intro_media
     elif status == "one":
         reply = data.first_text
@@ -141,13 +141,13 @@ def send_info(user_id, data, status='intro'):
         else:
             status_id = 'next'
         if data.first_attachment_id != "":
-            image = data.first_attachment_id
+            media = data.first_attachment_id
             url = data.first_media
     elif status == "two":
         reply = data.second_text
         status_id = 'next'
         if data.second_attachment_id != "":
-            image = data.second_attachment_id
+            media = data.second_attachment_id
             url = data.second_media
 
     quickreplies = []
@@ -161,8 +161,8 @@ def send_info(user_id, data, status='intro'):
         'title': 'Nächste Info',
         'payload': 'info#' + str(next_id) + '#intro'
     }
-    if image != "":
-        send_attachment(user_id, image, guess_attachment_type(url))
+    if media != "":
+        send_attachment(user_id, media, guess_attachment_type(url))
 
     if status_id == 'next' and next_id is not None:
         quickreplies.append(next_button)
@@ -176,8 +176,8 @@ def send_info(user_id, data, status='intro'):
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id == 'next' and next_id is None:
         send_text(user_id, reply)
-        image = '327361671016000'
-        send_image(user_id, image)
+        media = '327361671016000'
+        send_attachment(user_id, media, 'image')
 
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
