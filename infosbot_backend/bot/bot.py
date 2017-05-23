@@ -117,8 +117,9 @@ def get_breaking():
     try:
         return Info.objects.get(
             pub_date__date=date,
-            pub_date__time__lt=datetime.time(time.hour, time.minute),
-            pub_date__time__gt=datetime.time(time.hour, time.minute - 1),
+            pub_date__hour=time.hour,
+            pub_date__minute__lt=time.minute,
+            pub_date__minute__gt=time.minute - 1,
             published=True,
             breaking=True)
 
