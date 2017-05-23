@@ -10,6 +10,15 @@ class InfoModelForm(forms.ModelForm):
         required=False, label="Erster Text", widget=forms.Textarea, max_length=600)
     second_text = forms.CharField(
         required=False, label="Zweiter Text", widget=forms.Textarea, max_length=600)
+    intro_attachment_id = forms.CharField(
+        label='Facebook Attachment ID', help_text="Wird automatisch ausgefüllt", disabled=True,
+        required=False)
+    first_attachment_id = forms.CharField(
+        label='Facebook Attachment ID', help_text="Wird automatisch ausgefüllt", disabled=True,
+        required=False)
+    second_attachment_id = forms.CharField(
+        label='Facebook Attachment ID', help_text="Wird automatisch ausgefüllt", disabled=True,
+        required=False)
 
     class Meta:
         model = Info
