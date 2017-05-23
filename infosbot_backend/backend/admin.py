@@ -42,7 +42,7 @@ class InfoAdmin(admin.ModelAdmin):
     date_hierarchy = 'pub_date'
     list_filter = ['published', 'breaking']
     search_fields = ['headline']
-    list_display = ('headline', 'pub_date', 'published')
+    list_display = ('headline', 'pub_date', 'published', 'breaking')
 
 
 # Register your models here.
