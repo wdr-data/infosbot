@@ -157,15 +157,15 @@ def send_info(user_id, data, status='intro'):
         time = current_dt.time()
 
         if time.hour < 8:
-            next_id = Info.objects.filter(
+            next = Info.objects.filter(
                 id__gt=data.id,
                 pub_date__date=date,
                 pub_date__hour__lt=8,
                 published=True,
-                breaking=False)[:1][0].id
+                breaking=False)[:1][0]
 
         else:
-            next_id = Info.objects.filter(
+            next = Info.objects.filter(
                 id__gt=data.id,
                 pub_date__date=date,
                 pub_date__hour__gte=8,
@@ -174,7 +174,7 @@ def send_info(user_id, data, status='intro'):
                 breaking=False)[:1][0].id
 
     except IndexError:
-        next_id = None
+        next = None
     media = ""
     media_note = ""
     button_title = ""
@@ -226,11 +226,13 @@ def send_info(user_id, data, status='intro'):
         'title' : button_title,
         'payload' : 'info#' + str(data.id) + '#' + str(status_id)
     }
-    next_button = {
-        'content_type': 'text',
-        'title': 'Nächste Info',
-        'payload': 'info#' + str(next_id) + '#intro'
-    }
+    if next is not None:
+        next_button = {
+            'content_type': 'text',
+            'title': next.custom_button or 'Nächste Info',
+            'payload': 'info#' + str(next.id) + '#intro'
+        }
+
     if str(media):
         send_attachment(user_id, str(media), guess_attachment_type(str(url)))
         if str(media_note):
@@ -298,7 +300,7 @@ def push_breaking():
     data.save(update_fields=['delivered'])
 
 schedule.every(30).seconds.do(push_breaking)
-schedule.every().day.at("20:10").do(push_notification)
+schedule.every().day.at("20:00").do(push_notification)
 schedule.every().day.at("08:00").do(push_notification)
 
 def schedule_loop():

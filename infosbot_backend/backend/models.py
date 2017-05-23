@@ -51,6 +51,10 @@ class Info(models.Model):
         'Facebook Attachment ID', max_length=64, null=True, blank=True,
         help_text="Wird automatisch ausgefüllt")
 
+    custom_button = models.CharField(
+        'Button-Text', max_length=20, null=True, blank=True,
+        help_text='Leer lassen für Standard-Text "Nächste Info"')
+
     pub_date = models.DateTimeField(
         'Veröffentlicht am',
         default=timezone.now,
