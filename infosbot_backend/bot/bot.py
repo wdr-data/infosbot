@@ -76,7 +76,11 @@ def handle_messages(data):
             send_text_with_button(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "info":
             data = get_data()
-            schema(data, sender_id)
+            if len(data) == 0:
+                reply = "Dein News Update ist noch in Arbeit. Komme später wieder..."
+                send_text(sender_id, reply)
+            else:
+                schema(data, sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "subscribe":
             subscribe_user(sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "unsubscribe":
@@ -89,7 +93,9 @@ def get_data():
     return infos
 
 def schema(data, user_id):
-    reply = "Heute haben wir folgende Themen für dich: \n"
+    reply = "Heute haben wir folgende Themen für dich:"
+    send_text(user_id, reply)
+    reply = ""
     first_id = None
 
     for info in data:
