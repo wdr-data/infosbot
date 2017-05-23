@@ -47,7 +47,7 @@ class Info(models.Model):
 
 @receiver(post_save, sender=Info)
 def upload_to_facebook(sender, instance, raw, using, update_fields, **kwargs):
-    fields = [field for field in update_fields]
+    fields = ('intro_media', 'first_media', 'second_media')
     for field_name in fields:
         field = getattr(instance, field_name)
         if field.name:
