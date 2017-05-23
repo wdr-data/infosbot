@@ -275,5 +275,28 @@ def push_notification():
     for user in user_list:
         logger.debug("Send Push to: " + user)
         reply = "Heute haben wir folgende Themen für dich:"
-        send_text(sender_id, reply)
-        send_list_template(data, user)
+        send_text(user, reply)
+        send_info(user, data)
+
+def push_breaking():
+    data = get_breaking()
+    if data is None or data.delivered:
+        return
+    user_list = FacebookUser.objects.values_list('uid', flat=True)
+    for user in user_list:
+        logger.debug("Send Push to: " + user)
+        reply = "Heute haben wir folgende Themen für dich:"
+        send_text(user, reply)
+        send_info(user, data)
+    data.delivered = True
+
+schedule.every(50).seconds.do(push_breaking)
+schedule.every().day.at("20:00").do(push_notification)
+
+def schedule_loop():
+    while True:
+        schedule.run_pending()
+        sleep(1)
+
+schedule_loop_thread = Thread(target=schedule_loop, daemon=True)
+schedule_loop_thread.start()
