@@ -251,8 +251,9 @@ def send_info(user_id, data, status='intro'):
         send_text_and_quickreplies(reply, quickreplies, user_id)
     elif status_id == 'next' and next_id is None:
         send_text(user_id, reply)
-        media = '327361671016000'
-        send_attachment(user_id, media, 'image')
+        if not data.breaking:
+            media = '327361671016000'
+            send_attachment(user_id, media, 'image')
 
 def subscribe_user(user_id):
     if FacebookUser.objects.filter(uid = user_id).exists():
@@ -291,8 +292,8 @@ def push_breaking():
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
         logger.debug("Send Push to: " + user)
-        reply = "Breaking News!"
-        send_text(user, reply)
+        media = '327430241009143'
+        send_attachment(user_id, media, 'image')
         send_info(user, data)
         sleep(1)
     data.delivered = True
