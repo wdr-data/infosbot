@@ -279,7 +279,7 @@ def unsubscribe_user(user_id):
 
 def push_notification():
     data = get_data()
-    if data is None:
+    if not data:
         return
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
