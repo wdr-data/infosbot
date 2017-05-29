@@ -263,7 +263,7 @@ def send_info(user_id, data, status='intro'):
     elif status_id == 'next' and next is None:
         send_text(user_id, reply)
         if not data.breaking:
-            media = '327361671016000'
+            media = '330084054077095'
             send_attachment(user_id, media, 'image')
 
 def subscribe_user(user_id):
@@ -303,8 +303,8 @@ def push_breaking():
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
         logger.debug("Send Push to: " + user)
-        media = '327430241009143'
-        send_attachment(user, media, 'image')
+        reply = "Breaking News"
+        send_text(user, reply)
         send_info(user, data)
         sleep(1)
     data.delivered = True
