@@ -41,18 +41,16 @@ def handle_messages(data):
                 info_set = quick_reply.split('#')[2]
                 data = Info.objects.get(id=info_id)
                 send_info(sender_id, data, info_set)
+            if quick_reply == 'subscribe':
+                subscribe_user(sender_id)
         elif "message" in event and event['message'].get("text", "") != "" and event['message'].get('quick_reply') == None:
             logger.debug('received message')
             text = event['message']['text']
             if text == '/info':
                 data = get_data(force_latest=True)
+                if not data:
+                    return
                 schema(data, sender_id)
-            elif text == '/testpush':
-                reply = "Push Notification Test..."
-                send_text(sender_id, reply)
-                push_notification()
-                # data = get_data()
-                # send_list_template(data, sender_id)
             elif text == '/config':
                 reply = "Hier kannst du deine facebook Messenger-ID hinterlegen um automatisch ein tägliches Update von uns zu erhalten.\n" \
                         "Wenn du dich registieren möchtest klicke \"OK\". Du kannst deine Entscheidung jederzet wieder ändern."
@@ -72,12 +70,7 @@ def handle_messages(data):
 
                 send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "start":
-            reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\n" \
-                    "Hier bekommst Du alle Infos geliefert, die Du wissen musst, um mitreden zu " \
-                    "können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest :)" \
-                    "\nWas Du dafür tun musst: Fast nichts." \
-                    "\n\nUm dich für dein automatisches Update zu registrieren klicke auf \"OK\"."
-            send_text_with_button(sender_id, reply)
+            send_greeting(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "info":
             data = get_data()
             if len(data) == 0:
@@ -127,6 +120,23 @@ def get_breaking():
 
     except Info.DoesNotExist:
         return None
+
+def send_greeting(user_id):
+    reply = "Herzlich willkommen zum 1LIVE InfoMessenger. \n\n" \
+            "Hier bekommst Du alle Infos geliefert, die Du wissen musst, um mitreden zu " \
+            "können, selbst die, von denen Du nicht weißt, dass Du sie wissen wolltest :)" \
+            "\nWas Du dafür tun musst: Fast nichts." \
+            "\n\nDrück auf \"OK\", wenn du jeden Tag automatisch die 1LIVE-Infos geschickt kriegen willst."
+
+    quickreplies = []
+    button = {
+        'content_type' : 'text',
+        'title' : "OK",
+        'payload' : 'subscribe'
+    }
+    quickreplies.append(button)
+
+    send_text_and_quickreplies(reply, quickreplies, user_id)
 
 def schema(data, user_id):
     reply = "Heute haben wir folgende Themen für dich:"
