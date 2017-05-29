@@ -137,8 +137,7 @@ def schema(data, user_id):
     for info in data:
         if first_id is None:
             first_id = info.id
-        reply += ' +++ ' + info.headline
-    reply += ' +++ '
+        reply += '➡ ' + info.headline + '\n'
 
     quickreplies = []
     button = {
