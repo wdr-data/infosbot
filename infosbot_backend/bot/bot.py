@@ -238,7 +238,7 @@ def send_info(user_id, data, status='intro'):
             send_text(user_id, media_note)
 
     if data.breaking:
-        next_id = None
+        next = None
 
     if status_id == 'next' and next is not None:
         quickreplies.append(next_button)
@@ -278,7 +278,7 @@ def unsubscribe_user(user_id):
 
 def push_notification():
     data = get_data()
-    if data is None:
+    if not data:
         return
     user_list = FacebookUser.objects.values_list('uid', flat=True)
     for user in user_list:
