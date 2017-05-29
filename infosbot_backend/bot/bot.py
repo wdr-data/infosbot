@@ -70,7 +70,7 @@ def handle_messages(data):
 
                 send_text(sender_id, reply)
         elif "postback" in event and event['postback'].get("payload", "") == "start":
-            send_greeting(sender_id, reply)
+            send_greeting(sender_id)
         elif "postback" in event and event['postback'].get("payload", "") == "info":
             data = get_data()
             if len(data) == 0:
